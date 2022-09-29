@@ -1,6 +1,4 @@
 
-let boardWidth = 550;
-let boardHeight = 550;
 let boardViewBoxX = 0;
 let boardViewBoxY = 0;
 let boardViewBoxSize = 200;
@@ -22,17 +20,17 @@ let doubleArchX1 = borderArchX1 - (borderArchX1 * .022);
 let doubleArchX2 = borderArchX2 + (borderArchX2 * .031);
 let double_outer_y = outer_y + 15;
 
-let normal1ArchX1 = borderArchX1 - (borderArchX1 * .0287);
-let normal1ArchX2 = borderArchX2 + (borderArchX2 * .040);
-let normal1_outer_y = outer_y + 20;
+let n1ArchX1 = borderArchX1 - (borderArchX1 * .0287);
+let n1ArchX2 = borderArchX2 + (borderArchX2 * .040);
+let n1_outer_y = outer_y + 20;
 
 let trippleArchX1 = borderArchX1 - (borderArchX1 * .070);
 let trippleArchX2 = borderArchX2 + (borderArchX2 * .095);
 let tripple_outer_y = outer_y + 50;
 
-let normal2ArchX1 = borderArchX1 - (borderArchX1 * .077);
-let normal2ArchX2 = borderArchX2 + (borderArchX2 * .105);
-let normal2_outer_y = outer_y + 55;
+let n2ArchX1 = borderArchX1 - (borderArchX1 * .077);
+let n2ArchX2 = borderArchX2 + (borderArchX2 * .105);
+let n2_outer_y = outer_y + 55;
 
 let textX = borderArchX1 - 21;
 let textWidth = 20;
@@ -46,14 +44,14 @@ let selections = [];
 
 function clicked(e){
   e.preventDefault();
-  
+
   if (selections.length == 3){
     return;
   }
 
   let element = e.target;
   highlightElement(element);
-  let value = element.id.replace('-', ' ').replace('normal1', '').replace('normal2', '').trim();
+  let value = element.id.replace('-', ' ').replace('n1', '').replace('n2', '').trim();
   selections.push(value);
 }
 
@@ -83,19 +81,12 @@ function addClickEvent(element){
   element.addEventListener('touchstart', clicked);
 }
 
-function drawBoard(size){
-  if (size){
-    boardWidth = size;
-    boardHeight = size;
-  }
-
+function createBoard(){
   let board = document.createElementNS(svgNamespace, 'svg');
   board.setAttribute('id', 'dart-board');
-  board.setAttribute('width', boardWidth);
-  board.setAttribute('height', boardHeight);
   board.setAttribute('viewBox', `${boardViewBoxX} ${boardViewBoxY} ${boardViewBoxSize} ${boardViewBoxSize}`);
 
-  board.setAttribute('style', `border: 1px solid #782a2a; border-radius: 50%; border-width: ${boardWidth * .025}px; display: block; margin: auto;`);
+  board.setAttribute('style', `border-radius: 50%; border: 0px solid #782a2a; background: silver`);
 
   let startingPieRotationDegrees = 0;
   let fillColor = 'green';
@@ -148,34 +139,34 @@ function drawBoard(size){
     group.appendChild(t);
 
     // double
-    let double = createPath(`double-${number}`, `M${center_x} ${center_y} L${doubleArchX1} ${double_outer_y} A100 100 1 0,0 ${doubleArchX2},${double_outer_y} L${center_x} ${center_y}Z`, fillColor, 'silver');
+    let double = createPath(`d-${number}`, `M${center_x} ${center_y} L${doubleArchX1} ${double_outer_y} A100 100 1 0,0 ${doubleArchX2},${double_outer_y} L${center_x} ${center_y}Z`, fillColor, 'silver');
     addClickEvent(double);
     group.appendChild(double);
 
     // normal
-    let normal1 = createPath(`normal1-${number}`, `M${center_x} ${center_y} L${normal1ArchX1} ${normal1_outer_y} A100 100 1 0,0 ${normal1ArchX2},${normal1_outer_y} L${center_x} ${center_y}Z`, background, 'silver')
-    addClickEvent(normal1);
-    group.appendChild(normal1);
+    let n1 = createPath(`n1-${number}`, `M${center_x} ${center_y} L${n1ArchX1} ${n1_outer_y} A100 100 1 0,0 ${n1ArchX2},${n1_outer_y} L${center_x} ${center_y}Z`, background, 'silver')
+    addClickEvent(n1);
+    group.appendChild(n1);
 
     // tripple
-    let tripple = createPath(`tripple-${number}`, `M${center_x} ${center_y} L${trippleArchX1} ${tripple_outer_y} A80 80 1 0,0 ${trippleArchX2},${tripple_outer_y} L${center_x} ${center_y}Z`, fillColor, 'silver');
+    let tripple = createPath(`t-${number}`, `M${center_x} ${center_y} L${trippleArchX1} ${tripple_outer_y} A80 80 1 0,0 ${trippleArchX2},${tripple_outer_y} L${center_x} ${center_y}Z`, fillColor, 'silver');
     addClickEvent(tripple);
     group.appendChild(tripple);
 
     // normal
-    let normal2 = createPath(`normal2-${number}`, `M${center_x} ${center_y} L${normal2ArchX1} ${normal2_outer_y} A80 80 1 0,0 ${normal2ArchX2},${normal2_outer_y} L${center_x} ${center_y}Z`, background, 'silver');
-    addClickEvent(normal2);
-    group.appendChild(normal2);
+    let n2 = createPath(`n2-${number}`, `M${center_x} ${center_y} L${n2ArchX1} ${n2_outer_y} A80 80 1 0,0 ${n2ArchX2},${n2_outer_y} L${center_x} ${center_y}Z`, background, 'silver');
+    addClickEvent(n2);
+    group.appendChild(n2);
 
     board.appendChild(group);
   }
 
   // Bullseye
-  let bullseye = createCircle('bullseye', 7, 'green');
+  let bullseye = createCircle('bull', 7, 'green');
   addClickEvent(bullseye);
   board.appendChild(bullseye);
 
-  let doubleBullseye = createCircle('double-bullseye', 3, 'red');
+  let doubleBullseye = createCircle('d-bull', 3, 'red');
   addClickEvent(doubleBullseye);
   board.appendChild(doubleBullseye);
 
@@ -217,4 +208,5 @@ function createCircle(id, r, fill){
   return c;
 }
 
-document.body.appendChild(drawBoard(800));
+let boardDisplay = document.getElementById('board-display');
+boardDisplay.appendChild(createBoard());
