@@ -3,17 +3,33 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="./css/dart-scoreboard.css">
-    <script src="./js/dart-scoreboard.js" defer></script>
+    <link rel="stylesheet" href="./css/dartboard.css">
+    <link rel="stylesheet" href="./css/scoreboard.css">
+    <script src="./js/player.js" defer></script>
+    <script src="./js/dartboard.js" defer></script>
+    <script src="./js/scoreboard.js" defer></script>
     <title>Dart Scoreboard</title>
   </head>
   <body>
     <div id="board-display" class="absolute-centered">
       <!-- dart board dynamically created -->
     </div>
-    <!-- <div id="scoreboard" class="absolute-centered">
+    </div>
+    <div id="scoreboard-container" class="absolute-centered">
+      <div>
+        <div class="game-dropdown">
+          <button >Select Game</button>
+          <div class="game-dropdown-content">
+          </div>
+        </div>
 
-      HELLO! WHERE AM I?
-    </div> -->
+        <label for="new-player-name">New Player Name: </label>
+        <input id="new-player-name" type="text" />
+        <button id="new-player-btn" type="button" name="button">Add Player</button>
+        <button id="start-new-game-btn" type="button" name="button">Start New Game</button>
+      </div>
+      <br>
+      <!-- score board dynamically created -->
+    </div>
   </body>
 </html>

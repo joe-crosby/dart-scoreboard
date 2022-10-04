@@ -207,6 +207,3 @@ function createCircle(id, r, fill){
 
   return c;
 }
-
-let boardDisplay = document.getElementById('board-display');
-boardDisplay.appendChild(createBoard());
