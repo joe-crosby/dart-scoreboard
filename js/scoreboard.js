@@ -414,7 +414,6 @@ function startNewGame(e){
   }
 
   if (gameStarted || gameOver){
-    initialize();
     return;
   }
 
