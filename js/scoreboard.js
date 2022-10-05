@@ -406,7 +406,9 @@ function showDartBoard(e){
   boardDisplay.classList.add('showDartBoard');
 }
 
-function startNewGame(){
+function startNewGame(e){
+  e.preventDefault();
+
   if (players.length < 1){
     return;
   }
