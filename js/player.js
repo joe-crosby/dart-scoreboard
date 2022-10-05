@@ -1,8 +1,10 @@
 class Player{
-  constructor(name, scoresDictionary){
+  constructor(name, scoresCollection, maxDisplayCount){
     this.id = Date.now() + Math.floor(((Math.random() + 1) * 10));
     this.name = name;
-    this.scoresDictionary = scoresDictionary;
+    this.scores = scoresCollection;
+    this.maxDisplayCount = maxDisplayCount;
+    this.points = 0;
     this.totalScore = 0;
   }
 
@@ -11,47 +13,30 @@ class Player{
   }
 
   getScores(){
-    return this.scoresDictionary;
+    return this.scores;
   }
 
   getScore(category){
-    let total = 0;
-    for (let item in this.scoresDictionary[category]){
-      let multiple = 0;
-
-      if (item == 's'){
-        multiple = 1;
-      }
-      else if (item == 'd'){
-        multiple = 2;
-      }
-      else if (item == 't'){
-        multiple = 3;
-      }
-      total += this.scoresDictionary[category][item].reduce((sum, i) => sum += i * multiple, 0);
-    }
-
-    return total;
+    return this.scores[category];
   }
 
   addScores(scores){
-    scores.forEach((item, i) => {
-      if (item != '0'){
-        let values = item.split('-');
-
-        let section = this.scoresDictionary[values[1].toUpperCase()];
-        if (section){
-          section[values[0]].push(1);
+    for (let category in scores){
+      let value = scores[category];
+      
+      if (this.maxDisplayCount > 0){
+        if (value > this.maxDisplayCount){
+          value = this.maxDisplayCount;
         }
       }
-    });
+
+      this.scores[category.toUpperCase()] += value;
+    }
   }
 
   clearScores(){
-    for (let category in this.scoresDictionary){
-      for (let collection in this.scoresDictionary[category]){
-        this.scoresDictionary[category][collection] = [];
-      }
+    for (let category in this.scores){
+      this.scores[category] = 0;
     }
   }
 }

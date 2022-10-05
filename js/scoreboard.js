@@ -114,6 +114,14 @@ function getIndexAfterLastClosedCategory(){
   return gameCategories.indexOf(maxCategory) + 1;
 }
 
+function addToResultsCollection(collection, key, value){
+  if (!collection[key]){
+    collection[key] = 0;
+  }
+
+  collection[key] += value;
+}
+
 // populate the svg dart board scoreboard
 let dartboard = null;
 function dartboardCallback(results){
@@ -130,7 +138,7 @@ function dartboardCallback(results){
         upToCurrentCategories.forEach((cat, i) => {
           let currentCount = getCount(c, cat);
           if (currentCount > 0){
-            a.push(c);
+            addToResultsCollection(a, `${cat}`, currentCount);
           }
         });
 
@@ -139,26 +147,34 @@ function dartboardCallback(results){
 
         let cat = gameCategories[maxIndex];
         let userScore = currentPlayer.getScore(cat);
-        while(getCollectionCount(a, cat) + userScore >= gameRules['CategoryClosed']){
+        while(a[`${cat}`] + userScore >= gameRules['CategoryClosed']){
           cat = getNextCategory(cat);
-
-          if (getCount(c, cat) > 0){
-            a.push(c);
+          let currentCount = getCount(c, cat);
+          if (currentCount > 0){
+            addToResultsCollection(a, `${cat}`, currentCount);
           }
         }
       }
       else {
         if (c.includes(currentCategory)){
-          a.push(c);
+          let cat = c.split('-')[1];
+          let currentCount = getCount(c, cat);
+          if (currentCount > 0){
+            addToResultsCollection(a, `${cat}`, currentCount);
+          }
         }
       }
     }
     else {
-      a.push(c);
+      let cat = c.split('-')[1];
+      let currentCount = getCount(c, cat);
+      if (currentCount > 0){
+        addToResultsCollection(a, `${cat}`, currentCount);
+      }
     }
 
     return a;
-  }, []);
+  }, {});
 
   currentPlayer.addScores(validScores);
 
@@ -197,63 +213,19 @@ function getCount(item, value){
   return 0;
 }
 
-function getCollectionCount(categories, value){
-  let total = 0;
-  categories.forEach((item, i) => {
-    let split = item.split('-');
-
-    if (split.length > 0 && split[1] == value){
-      let multiple = 0;
-      if (split[0] == 's'){
-        multiple = 1;
-      }
-      else if (split[0] == 'd'){
-        multiple = 2;
-      }
-      else if (split[0] == 't'){
-        multiple = 3;
-      }
-
-      total += 1 * multiple;
-    }
-  });
-
-  return total;
-}
-
-function calculateScore(scores, value){
-  let calculatedScore = 0;
-  for (let category in scores[value]){
-    let multiple = 1;
-    if (category == 'd'){
-      multiple = 2;
-    }
-    else if (category == 't'){
-      multiple = 3;
-    }
-
-    // calculate their value
-    if (scores[value][category].length > 0){
-      calculatedScore += scores[value][category].reduce((total, item) => total + item) * multiple;
-    }
-  }
-
-  return calculatedScore;
-}
-
 function updateScoreboard(){
   // get the scores
   let scores = currentPlayer.getScores();
   let totalScore = 0;
   for (let value in scores){
-    let calculatedScore = calculateScore(scores, value);
-    totalScore += calculatedScore;
+    let score = scores[value];
+    totalScore += score;
     let element = document.getElementById(`c${currentPlayer.id}-${value}`);
 
     // update the UI
-    element.innerHTML = calculatedScore;
+    element.innerHTML = score;
 
-    if (calculatedScore == 0){
+    if (score == 0){
       if (gameRules['DisplayNoScore'] && value <= currentCategory){
         element.innerHTML = 0;
       }
@@ -389,6 +361,14 @@ function addPlayerToScoreboard(player){
   }
 }
 
+function newPlayerEnterPressed(e){
+    if (e.keyCode == 13) {
+        e.preventDefault();
+        document.activeElement.blur();
+        newPlayerCLicked(e);
+    }
+}
+
 function newPlayerCLicked(e){
   e.preventDefault();
 
@@ -399,7 +379,7 @@ function newPlayerCLicked(e){
   // append new column to Scoreboard
   let playerName = document.getElementById('new-player-name').value;
   if (playerName) {
-    players.push(new Player(playerName, createNewScoresDictionary()));
+    players.push(new Player(playerName, createNewScoresDictionary(), gameRules['MaxDisplayCount']));
 
     // add the user to the Scoreboard
     addPlayerToScoreboard(players[players.length - 1]);
@@ -410,11 +390,7 @@ function createNewScoresDictionary(){
   let newDict = {}
 
   gameCategories.forEach((value, i) => {
-    newDict[value.toString()] = {
-      's': [],
-      'd': [],
-      't': [],
-    }
+    newDict[value.toString()] = 0;
   });
 
   return newDict;
@@ -435,21 +411,18 @@ function startNewGame(){
     return;
   }
 
-  try{
-    if (gameStarted || gameOver){
-      initialize();
-      return;
-    }
-
-    // set the current player
-    setNextPlayer();
-
-    gameStarted = true;
+  if (gameStarted || gameOver){
+    initialize();
+    return;
   }
-  finally{
-    // reset the currentCategory
-    setCurrentCategory(getNextCategory(null));
-  }
+
+  // set the current player
+  setNextPlayer();
+
+  gameStarted = true;
+
+  // reset the currentCategory
+  setCurrentCategory(getNextCategory(null));
 }
 
 function getNextCategory(value){
@@ -466,14 +439,12 @@ function getNextCategory(value){
 }
 
 function setCurrentCategory(value){
-  if (gameRules['EnforceSingleRounds']){
-    if (currentCategory != null){
-      let element = document.getElementById(`score-${currentCategory}`);
-      if (element){
-        element.classList.remove('currentCategory');
-      }
-    }
+  let elements = document.getElementsByClassName(`currentCategory`);
+  for (var i = 0; i < elements.length; i++) {
+     elements.item(i).classList.remove('currentCategory');
+  }
 
+  if (gameRules['EnforceSingleRounds']){
     if (value != null){
       currentCategory = value;
       let element = document.getElementById(`score-${currentCategory}`);
@@ -527,6 +498,7 @@ function getHeaderElement(){
 }
 
 // add addEventListeners
+document.getElementById('new-player-name').addEventListener('keypress', newPlayerEnterPressed);
 addClickEvent(document.getElementById('new-player-btn'), newPlayerCLicked);
 addClickEvent(document.getElementById('start-new-game-btn'), startNewGame);
 
