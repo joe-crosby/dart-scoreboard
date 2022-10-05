@@ -214,6 +214,9 @@ function getCount(item, value){
 }
 
 function updateScoreboard(){
+  if (currentPlayer == null){
+    return;
+  }
   // get the scores
   let scores = currentPlayer.getScores();
   let totalScore = 0;
