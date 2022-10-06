@@ -12,6 +12,9 @@ const GAMERULES = {
     'MaxDisplayCount': 3,
     'DisplayCountValues': [],
     'IncludeTotals': false,
+    'InstantWinner': function(values){
+      return false;
+    },
   },
   'Shanghi': {
     'EnforceOrder': true,
@@ -21,6 +24,35 @@ const GAMERULES = {
     'MaxDisplayCount': null,
     'DisplayCountValues': [],
     'IncludeTotals': true,
+    'InstantWinner': function(player, results, validScores){
+      let scoreCount = 0;
+      for (let c in validScores){
+        scoreCount++;
+      }
+      if (scoreCount < 1 || results.length < 0){
+        return false;
+      }
+
+      let number = Object.keys(validScores)[0];
+
+      let sameNumber = results.reduce((r, item) => {
+        return number == parseInt(item.split('-')[1])
+      }, false);
+
+      let categories = results.reduce((r, item) => {
+        let cat = item.split('-')[0];
+        if (!r.includes(cat)) {
+          r.push(cat);
+        }
+        return r; /* important to keep separate */
+      }, []);
+
+      // In darts you only have 3 darts per turn. Since the categories are Tripple, Double, and Single,
+      // a user has a shanghi when the distinct category count is 3.
+      if (sameNumber && categories.length == 3){
+        return `${player.name} got Shanghi!`;
+      }
+    },
   }
 }
 
@@ -53,17 +85,22 @@ function initialize(){
   drawScoreboard();
 }
 
-function endGame(){
+function endGame(message){
   // End the game
   gameOver = true;
   setCurrentCategory(null);
 
-  let winners = getWinners();
-  if (winners.length > 1){
-    alert(`We have a tie!`);
+  if (message){
+    alert(message);
   }
   else{
-    alert(`${winners[0].name} wins!`);
+    let winners = getWinners();
+    if (winners.length > 1){
+      alert(`We have a tie!`);
+    }
+    else{
+      alert(`${winners[0].name} wins!`);
+    }
   }
 }
 
@@ -74,7 +111,7 @@ function getWinners(){
   }
   else {
     // Cricket - First to bull out -- Need to account for scoring in the future.
-    return currentPlayer;
+    return [currentPlayer];
   }
 }
 
@@ -128,6 +165,7 @@ function dartboardCallback(results){
   if (!confirm(`Is this correct: ${results}?`)){
     return;
   }
+  dartboard.hide();
 
   let maxIndex = getIndexAfterLastClosedCategory();
   let upToCurrentCategories = gameCategories.filter((item, index) => index <= maxIndex);
@@ -176,11 +214,26 @@ function dartboardCallback(results){
     return a;
   }, {});
 
+  // joe testing
+  if (isInstantWinner(results, validScores)){
+    return;
+  }
+
   currentPlayer.addScores(validScores);
 
-  dartboard.hide();
   updateScoreboard();
   setNextPlayer();
+}
+
+function isInstantWinner(results, validScores){
+  let response = gameRules['InstantWinner'](currentPlayer, results, validScores);
+
+  if (response){
+    endGame(response);
+    return true;
+  }
+
+  return false;
 }
 
 function validateScores(value){
@@ -225,8 +278,15 @@ function updateScoreboard(){
     totalScore += score;
     let element = document.getElementById(`c${currentPlayer.id}-${value}`);
 
-    // update the UI
-    element.innerHTML = score;
+    console.log(`c${currentPlayer.id}-${value}`);
+
+    try {
+      // update the UI
+      element.innerHTML = score;
+    }
+    catch (err){
+      console.log(`ERROR finding: c${currentPlayer.id}-${value}`);
+    }
 
     if (score == 0){
       if (gameRules['DisplayNoScore'] && value <= currentCategory){
@@ -406,7 +466,7 @@ function showDartBoard(e){
     return;
   }
 
-  boardDisplay.classList.add('showDartBoard');
+  dartboard.display();
 }
 
 function startNewGame(e){
@@ -464,11 +524,10 @@ function setNextPlayer(){
   let nextPlayerIndex = 0;
 
   if (currentPlayer != null){
-    getHeaderElement().classList.remove('currentPlayer');
     nextPlayerIndex = players.indexOf(currentPlayer) + 1;
   }
 
-  // Check for game game
+  // Check for game over
   let next = getIndexAfterLastClosedCategory();
   if(next >= gameCategories.length){
     endGame();
@@ -476,6 +535,9 @@ function setNextPlayer(){
   }
 
   if (nextPlayerIndex >= players.length){
+    // reset to first player;
+    nextPlayerIndex = 0;
+
     if (currentCategory != null){
       nextCategoryIndex = gameInfo.indexOf(currentCategory) + 1;
       if (nextCategoryIndex < gameInfo.length){
@@ -487,12 +549,14 @@ function setNextPlayer(){
         return;
       }
     }
+  }
 
-    currentPlayer = players[0];
+  let elements = document.getElementsByClassName('currentPlayer');
+  for (var i = 0; i < elements.length; i++) {
+     elements.item(i).classList.remove('currentPlayer');
   }
-  else {
-    currentPlayer = players[nextPlayerIndex];
-  }
+
+  currentPlayer = players[nextPlayerIndex];
 
   getHeaderElement().classList.add('currentPlayer');
 }

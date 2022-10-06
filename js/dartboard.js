@@ -1,4 +1,6 @@
 class Dartboard{
+  #disabled = true;
+
   #resultCallback;
   #dartBoardContainer;
 
@@ -216,20 +218,18 @@ class Dartboard{
   #clicked(e){
     e.preventDefault();
 
-    if (this.#selections.length == 3){
-      return;
-    }
+    if (this.#selections.length < 3){
+      let element = e.target;
+      let value = element.id.replace('n1', 's').replace('n2', 's').trim();
+      // When the user clicks the border, they have indicated that the dart did
+      // not hit a valid position on the board
+      if (value.includes('border')){
+        value = '0';
+      }
 
-    let element = e.target;
-    this.#highlightElement(element);
-    let value = element.id.replace('n1', 's').replace('n2', 's').trim();
-    // When the user clicks the border, they have indicated that the dart did
-    // not hit a valid position on the board
-    if (value.includes('border')){
-      value = '0';
+      this.#selections.push(value);
+      this.#highlightElement(element);
     }
-
-    this.#selections.push(value);
   }
 
   #highlightElement(e){
@@ -241,10 +241,11 @@ class Dartboard{
 
   #unHighlightElement(e){
     e.classList.remove('highlight');
+
     if (this.#selections.length == 3){
       // send selections to the callback method
       this.#resultCallback(this.#selections);
-      this.#selections = [];
+      this.#selections.length = 900;
     }
   }
 
@@ -255,6 +256,7 @@ class Dartboard{
 
   display(){
     this.#dartBoardContainer.classList.add('showDartBoard');
+    this.#selections = [];
   }
 
   hide(){

@@ -20,17 +20,20 @@ class Player{
     return this.scores[category];
   }
 
-  addScores(scores){
-    for (let category in scores){
-      let value = scores[category];
-      
-      if (this.maxDisplayCount > 0){
-        if (value > this.maxDisplayCount){
-          value = this.maxDisplayCount;
-        }
-      }
+  addScores(collection){
+    // Only add scores in the scores collection
+    for (let category in this.scores){
+      let value = collection[category];
 
-      this.scores[category.toUpperCase()] += value;
+      if (!isNaN(value)){
+        if (this.maxDisplayCount > 0){
+          if (value > this.maxDisplayCount){
+            value = this.maxDisplayCount;
+          }
+        }
+
+        this.scores[category] += value;
+      }
     }
   }
 
