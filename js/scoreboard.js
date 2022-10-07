@@ -165,8 +165,10 @@ function addToResultsCollection(collection, key, value){
 let dartboard = null;
 function dartboardCallback(results){
   if (!confirm(`You hit:   ${results.join(',  ')}`)){
+    dartboard.reset();
     return;
   }
+
   dartboard.hide();
 
   let maxIndex = getIndexAfterLastClosedCategory();

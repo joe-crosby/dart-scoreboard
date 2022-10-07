@@ -44,7 +44,7 @@ class Dartboard{
   #svgNamespace;
   #sliceHeadings;
 
-  #selections;
+  #selections = [];
 
   constructor(resultCallback, dartboardContainer){
     this.#resultCallback = resultCallback;
@@ -81,8 +81,6 @@ class Dartboard{
 
     this.#svgNamespace = "http://www.w3.org/2000/svg";
     this.#sliceHeadings = [20, 1, 18, 4, 13, 6, 10, 15, 2, 17, 3, 19, 7, 16, 8, 11, 14, 9, 12, 5];
-
-    this.#selections = [];
   }
 
   create(){
@@ -243,9 +241,10 @@ class Dartboard{
     e.classList.remove('highlight');
 
     if (this.#selections.length == 3){
+      // increment by 1 to prevent extra scoring.
+      this.#selections.length = 4;
       // send selections to the callback method
       this.#resultCallback(this.#selections);
-      this.#selections.length = 900;
     }
   }
 
@@ -254,9 +253,13 @@ class Dartboard{
     element.addEventListener('touchstart', this.#clicked.bind(this));
   }
 
+  reset(){
+    this.#selections = [];
+  }
+
   display(){
     this.#dartBoardContainer.classList.add('showDartBoard');
-    this.#selections = [];
+    this.reset();
   }
 
   hide(){

@@ -28,7 +28,7 @@ class Player{
       if (!isNaN(value)){
         let newValue = this.scores[category] + value;
 
-        if (newValue > this.maxDisplayCount){
+        if (this.maxDisplayCount && newValue > this.maxDisplayCount){
           this.scores[category] = this.maxDisplayCount
         }
         else{
