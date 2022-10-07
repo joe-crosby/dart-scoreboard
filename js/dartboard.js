@@ -169,11 +169,11 @@ class Dartboard{
     }
 
     // Bullseye
-    let bullseye = this.#createCircle('S-bull', 7, 'green');
+    let bullseye = this.#createCircle('S-BULL', 7, 'green');
     this.#addClickEvent(bullseye);
     board.appendChild(bullseye);
 
-    let doubleBullseye = this.#createCircle('D-bull', 3, 'red');
+    let doubleBullseye = this.#createCircle('D-BULL', 3, 'red');
     this.#addClickEvent(doubleBullseye);
     board.appendChild(doubleBullseye);
 

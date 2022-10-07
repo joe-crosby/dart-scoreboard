@@ -164,14 +164,6 @@ function addToResultsCollection(collection, key, value){
 // populate the svg dart board scoreboard
 let dartboard = null;
 function dartboardCallback(results){
-  if (!confirm(`Is this correct: ${results}?`)){
-    return;
-  }
-  dartboard.hide();
-
-  let maxIndex = getIndexAfterLastClosedCategory();
-  let upToCurrentCategories = gameCategories.filter((item, index) => index <= maxIndex);
-
   let orderedResults = [];
   gameCategories.forEach((item, i) => {
     let filtered = results.filter(r => r.split('-')[1].toUpperCase() == item.toUpperCase());
@@ -179,7 +171,14 @@ function dartboardCallback(results){
       orderedResults = orderedResults.concat(filtered);
     }
   });
-  alert(orderedResults);
+
+  if (!confirm(`You hit:   ${results.join(',  ')}`)){
+    return;
+  }
+  dartboard.hide();
+
+  let maxIndex = getIndexAfterLastClosedCategory();
+  let upToCurrentCategories = gameCategories.filter((item, index) => index <= maxIndex);
 
   let validScores = orderedResults.reduce((a, c, i) => {
     if (gameRules['EnforceOrder']){
