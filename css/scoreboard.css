@@ -13,6 +13,16 @@
                                   supported by Chrome, Edge, Opera and Firefox */
 }
 
+.score {
+  background: #e3edfb;
+  font-weight: bold;
+}
+
+.fakeColumn {
+  visibility: hidden !important;
+  border: none !important;
+}
+
 #scoreboard-table {
   margin-top: 10px !important;
 }

@@ -3,6 +3,14 @@ const GAMES = {
   'Shanghi': ['Shanghi', '1', '2', '3', '4', '5', '6', '7'],
 }
 
+// TESTING svg
+/*
+<svg height="200" width="200">
+  <path d="M185 0 L0 185 L12 200 L200 15 Z" />
+  Sorry, your browser does not support inline SVG.
+</svg>
+*/
+
 const GAMERULES = {
   'Cricket': {
     'EnforceOrder': true,
@@ -336,12 +344,12 @@ function drawScoreboard(){
       // header
       if (i == 0){
         r.setAttribute('id', 'scoreboad-header');
-        r.appendChild(getHeader(item, `score-${i}`));
+        r.appendChild(getScoreHeader(item, i));
       }
       else{
         // rows
         r.setAttribute('id', `r${item}`);
-        r.appendChild(getColumn(item, `score-${item}`));
+        r.appendChild(getScoreColumn(item, item));
       }
 
       scoreboardTable.appendChild(r);
@@ -349,7 +357,7 @@ function drawScoreboard(){
 
     if (gameRules['IncludeTotals']){
       let r = getRow(null, 'scoreboard-totals');
-      r.appendChild(getColumn('Totals', `score-totals`));
+      r.appendChild(getScoreColumn('Totals', `totals`));
       scoreboardTable.appendChild(r);
     }
 
@@ -357,6 +365,20 @@ function drawScoreboard(){
 
     tableIsDrawn = true;
   }
+}
+
+function getScoreHeader(value, id){
+  let e = document.createElement('th');
+  e.classList.add('score');
+  setAtt(e, value, `score-${id}`);
+  return e;
+}
+
+function getScoreColumn(value, id){
+  let e = document.createElement('td');
+  e.classList.add('score');
+  setAtt(e, value, `score-${id}`);
+  return e;
 }
 
 function getRow(value, id){
@@ -419,6 +441,63 @@ function addPlayerToScoreboard(player){
     if (gameRules['IncludeTotals']){
       let r = document.querySelector('#scoreboard-totals');
       r.appendChild(getColumn(null, `c${player.id}-totals`, true))
+    }
+
+    // keep the score section in the center
+    moveScoreColumn();
+  }
+}
+
+function moveScoreColumn(){
+  // remove the dummy blank column
+  let fakeColumns = document.querySelectorAll('.fakeColumn');
+  [...fakeColumns].forEach((item, i) => {
+    item.remove();
+  });
+
+  if (players.length == 1 || players.length % 2 != 0){
+    let currentTable = document.getElementById('scoreboard-table');
+    [...currentTable.rows].forEach((item, i) => {
+      let cells = [...item.cells];
+      let scoreCol = item.querySelector('[id^="score-"]');
+      let nextElement = cells[cells.indexOf(scoreCol) + 1];
+
+      item.insertBefore(nextElement, scoreCol);
+    });
+
+    // Add dummy blank column so the table stays centered
+    if (players.length % 2 != 0){
+      gameInfo.forEach((item, i) => {
+        // row
+        let r = null;
+
+        if (i == 0){
+          r = document.querySelector('#scoreboad-header');
+        }
+        else{
+          r = document.querySelector(`#r${item}`);
+        }
+
+        // header
+        if (i == 0){
+          let h = getHeader(null, null);
+          h.classList.add('fakeColumn');
+          r.appendChild(h);
+        }
+        else{
+          // rows
+          let c = getColumn(null, null);
+          c.classList.add('fakeColumn');
+          r.appendChild(c);
+        }
+      });
+
+      if (gameRules['IncludeTotals']){
+        let r = document.querySelector('#scoreboard-totals');
+        let c = getColumn(null, null);
+        c.classList.add('fakeColumn');
+        r.appendChild(c);
+      }
     }
   }
 }
