@@ -251,7 +251,7 @@ function validateScores(value){
 function getCount(item, value){
   let split = item.split('-');
 
-  if (split.length > 0 && split[1].toUpperCase() == value.toUpperCase()){
+  if (split.length > 1 && split[1].toUpperCase() == value.toUpperCase()){
     let multiple = 0;
     if (split[0].toUpperCase() == 'S'){
       multiple = 1;
