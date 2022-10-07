@@ -26,13 +26,14 @@ class Player{
       let value = collection[category];
 
       if (!isNaN(value)){
-        if (this.maxDisplayCount > 0){
-          if (value > this.maxDisplayCount){
-            value = this.maxDisplayCount;
-          }
-        }
+        let newValue = this.scores[category] + value;
 
-        this.scores[category] += value;
+        if (newValue > this.maxDisplayCount){
+          this.scores[category] = this.maxDisplayCount
+        }
+        else{
+          this.scores[category] += value;
+        }
       }
     }
   }
