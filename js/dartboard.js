@@ -146,22 +146,22 @@ class Dartboard{
       group.appendChild(t);
 
       // double
-      let double = this.#createPath(`d-${number}`, `M${this.#center_x} ${this.#center_y} L${this.#doubleArchX1} ${this.#double_outer_y} A100 100 1 0,0 ${this.#doubleArchX2},${this.#double_outer_y} L${this.#center_x} ${this.#center_y}Z`, fillColor, 'silver');
+      let double = this.#createPath(`D-${number}`, `M${this.#center_x} ${this.#center_y} L${this.#doubleArchX1} ${this.#double_outer_y} A100 100 1 0,0 ${this.#doubleArchX2},${this.#double_outer_y} L${this.#center_x} ${this.#center_y}Z`, fillColor, 'silver');
       this.#addClickEvent(double);
       group.appendChild(double);
 
       // normal
-      let n1 = this.#createPath(`n1-${number}`, `M${this.#center_x} ${this.#center_y} L${this.#n1ArchX1} ${this.#n1_outer_y} A100 100 1 0,0 ${this.#n1ArchX2},${this.#n1_outer_y} L${this.#center_x} ${this.#center_y}Z`, background, 'silver')
+      let n1 = this.#createPath(`N1-${number}`, `M${this.#center_x} ${this.#center_y} L${this.#n1ArchX1} ${this.#n1_outer_y} A100 100 1 0,0 ${this.#n1ArchX2},${this.#n1_outer_y} L${this.#center_x} ${this.#center_y}Z`, background, 'silver')
       this.#addClickEvent(n1);
       group.appendChild(n1);
 
       // tripple
-      let tripple = this.#createPath(`t-${number}`, `M${this.#center_x} ${this.#center_y} L${this.#trippleArchX1} ${this.#tripple_outer_y} A80 80 1 0,0 ${this.#trippleArchX2},${this.#tripple_outer_y} L${this.#center_x} ${this.#center_y}Z`, fillColor, 'silver');
+      let tripple = this.#createPath(`T-${number}`, `M${this.#center_x} ${this.#center_y} L${this.#trippleArchX1} ${this.#tripple_outer_y} A80 80 1 0,0 ${this.#trippleArchX2},${this.#tripple_outer_y} L${this.#center_x} ${this.#center_y}Z`, fillColor, 'silver');
       this.#addClickEvent(tripple);
       group.appendChild(tripple);
 
       // normal
-      let n2 = this.#createPath(`n2-${number}`, `M${this.#center_x} ${this.#center_y} L${this.#n2ArchX1} ${this.#n2_outer_y} A80 80 1 0,0 ${this.#n2ArchX2},${this.#n2_outer_y} L${this.#center_x} ${this.#center_y}Z`, background, 'silver');
+      let n2 = this.#createPath(`N2-${number}`, `M${this.#center_x} ${this.#center_y} L${this.#n2ArchX1} ${this.#n2_outer_y} A80 80 1 0,0 ${this.#n2ArchX2},${this.#n2_outer_y} L${this.#center_x} ${this.#center_y}Z`, background, 'silver');
       this.#addClickEvent(n2);
       group.appendChild(n2);
 
@@ -169,11 +169,11 @@ class Dartboard{
     }
 
     // Bullseye
-    let bullseye = this.#createCircle('s-bull', 7, 'green');
+    let bullseye = this.#createCircle('S-bull', 7, 'green');
     this.#addClickEvent(bullseye);
     board.appendChild(bullseye);
 
-    let doubleBullseye = this.#createCircle('d-bull', 3, 'red');
+    let doubleBullseye = this.#createCircle('D-bull', 3, 'red');
     this.#addClickEvent(doubleBullseye);
     board.appendChild(doubleBullseye);
 
@@ -220,7 +220,7 @@ class Dartboard{
 
     if (this.#selections.length < 3){
       let element = e.target;
-      let value = element.id.replace('n1', 's').replace('n2', 's').trim();
+      let value = element.id.replace('N1', 'S').replace('N2', 'S').trim();
       // When the user clicks the border, they have indicated that the dart did
       // not hit a valid position on the board
       if (value.includes('border')){

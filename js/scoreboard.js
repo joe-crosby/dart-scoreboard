@@ -68,9 +68,9 @@ let gameOver = false;
 let tableIsDrawn = false;
 
 // add the games for selections
-let gdc = document.getElementsByClassName('game-dropdown-content')[0];
+let gdc = document.getElementById('select-game-dropdown');
 for (var key in GAMES){
-  let l = document.createElement('label', {'innerHTML': key});
+  let l = document.createElement('label');
   l.innerHTML = key;
   addClickEvent(l, gameSelectionChanged);
   gdc.appendChild(l)
@@ -123,6 +123,8 @@ function gameSelectionChanged(e){
   gameCategories = gameInfo.slice(1);
   gameRules = GAMERULES[`${e.target.innerHTML}`];
   initialize();
+  // Display the user info section
+  document.getElementById('user-info-section').classList.add('show');
 }
 
 function getIndexAfterLastClosedCategory(){
@@ -169,7 +171,17 @@ function dartboardCallback(results){
 
   let maxIndex = getIndexAfterLastClosedCategory();
   let upToCurrentCategories = gameCategories.filter((item, index) => index <= maxIndex);
-  let validScores = results.reduce((a, c, i) => {
+
+  let orderedResults = [];
+  gameCategories.forEach((item, i) => {
+    let filtered = results.filter(r => r.split('-')[1].toUpperCase() == item.toUpperCase());
+    if (filtered.length > 0){
+      orderedResults = orderedResults.concat(filtered);
+    }
+  });
+  alert(orderedResults);
+
+  let validScores = orderedResults.reduce((a, c, i) => {
     if (gameRules['EnforceOrder']){
       if (gameRules['CategoryClosed'] != null){
         // values before current
@@ -215,7 +227,7 @@ function dartboardCallback(results){
   }, {});
 
   // joe testing
-  if (isInstantWinner(results, validScores)){
+  if (isInstantWinner(orderedResults, validScores)){
     return;
   }
 
@@ -248,15 +260,15 @@ function validateScores(value){
 function getCount(item, value){
   let split = item.split('-');
 
-  if (split.length > 0 && split[1] == value.toLowerCase()){
+  if (split.length > 0 && split[1].toUpperCase() == value.toUpperCase()){
     let multiple = 0;
-    if (split[0] == 's'){
+    if (split[0].toUpperCase() == 'S'){
       multiple = 1;
     }
-    else if (split[0] == 'd'){
+    else if (split[0].toUpperCase() == 'D'){
       multiple = 2;
     }
-    else if (split[0] == 't'){
+    else if (split[0].toUpperCase() == 'T'){
       multiple = 3;
     }
 
@@ -278,15 +290,8 @@ function updateScoreboard(){
     totalScore += score;
     let element = document.getElementById(`c${currentPlayer.id}-${value}`);
 
-    console.log(`c${currentPlayer.id}-${value}`);
-
-    try {
-      // update the UI
-      element.innerHTML = score;
-    }
-    catch (err){
-      console.log(`ERROR finding: c${currentPlayer.id}-${value}`);
-    }
+    // update the UI
+    element.innerHTML = score;
 
     if (score == 0){
       if (gameRules['DisplayNoScore'] && value <= currentCategory){
@@ -329,6 +334,7 @@ function drawScoreboard(){
 
     let scoreboardTable = document.createElement('table');
     scoreboardTable.setAttribute('id', 'scoreboard-table');
+    scoreboardTable.classList.add('absolute-centered');
 
     gameInfo.forEach((item, i) => {
       // main row
@@ -440,12 +446,15 @@ function newPlayerCLicked(e){
   }
 
   // append new column to Scoreboard
-  let playerName = document.getElementById('new-player-name').value;
+  let playerTb = document.getElementById('new-player-name');
+  let playerName = playerTb.value;
   if (playerName) {
     players.push(new Player(playerName, createNewScoresDictionary(), gameRules['MaxDisplayCount']));
 
     // add the user to the Scoreboard
     addPlayerToScoreboard(players[players.length - 1]);
+
+    playerTb.value = null;
   }
 }
 
@@ -487,6 +496,8 @@ function startNewGame(e){
 
   // reset the currentCategory
   setCurrentCategory(getNextCategory(null));
+
+  document.getElementById('user-info-section').classList.remove('show');
 }
 
 function getNextCategory(value){
@@ -565,10 +576,32 @@ function getHeaderElement(){
   return document.getElementById(`c${currentPlayer.id}-${gameInfo[0]}`);
 }
 
+function selectGameClicked(e){
+  e.preventDefault();
+
+  document.getElementById('select-game-dropdown').classList.toggle("show");
+}
+
+// Close the dropdown menu if the user clicks outside of it
+function closeDropDown(e){
+  if (!e.target.matches('.dropbtn')) {
+    var dropdowns = document.getElementsByClassName("dropdown-content");
+    var i;
+    for (i = 0; i < dropdowns.length; i++) {
+      var openDropdown = dropdowns[i];
+      if (openDropdown.classList.contains('show')) {
+        openDropdown.classList.remove('show');
+      }
+    }
+  }
+}
+
 // add addEventListeners
 document.getElementById('new-player-name').addEventListener('keypress', newPlayerEnterPressed);
+addClickEvent(window, closeDropDown);
+addClickEvent(document.getElementById('select-game-btn'), selectGameClicked);
 addClickEvent(document.getElementById('new-player-btn'), newPlayerCLicked);
-addClickEvent(document.getElementById('start-new-game-btn'), startNewGame);
+addClickEvent(document.getElementById('start-game-btn'), startNewGame);
 
 function addClickEvent(e, callback){
   e.addEventListener('click', callback);

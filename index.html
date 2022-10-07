@@ -16,18 +16,17 @@
     </div>
     </div>
     <div id="scoreboard-container" class="absolute-centered">
-      <div>
+      <div id="user-info-section">
         <label for="new-player-name">New Player Name: </label>
         <input id="new-player-name" type="text" />
         <button id="new-player-btn" type="button" name="button">Add Player</button>
+        <button id="start-game-btn" type="button" name="button">Start Game</button>
       </div>
-      <div>
-        <div class="game-dropdown">
-          <button >Select Game</button>
-          <div class="game-dropdown-content">
-          </div>
+      <div class="dropdown float-right">
+        <button id="select-game-btn" class="dropbtn">Select Game</button>
+        <div id="select-game-dropdown" class="dropdown-content">
+          <!-- dynamically added -->
         </div>
-        <button id="start-new-game-btn" type="button" name="button">Start New Game</button>
       </div>
       <br>
       <!-- score board dynamically created -->
