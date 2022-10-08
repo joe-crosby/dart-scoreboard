@@ -3,34 +3,46 @@ const GAMES = {
   'Shanghi': ['Shanghi', '1', '2', '3', '4', '5', '6', '7'],
 }
 
+const GAMESCORES = {
+  'Cricket': [
+    null,
+    `<svg viewBox="0 0 40 40" stroke="black">
+      <path d="M9 6 L34 31 L30.5 34 L5.5 9.5 Z" />
+      Sorry, your browser does not support inline SVG.
+    </svg>`,
+    `<svg viewBox="0 0 40 40" stroke="black">
+     <g>
+       <path d="M30 6 L6 30 L9 34 L34 9 Z" />
+       <path d="M9 6 L34 31 L30.5 34 L5.5 9.5 Z" />
+     </g>
+     Sorry, your browser does not support inline SVG.
+    </svg>`,
+    `<svg viewBox="0 0 15 15" stroke="black">
+      <circle cx="7.5" cy="7.5" r="6" stroke="black" stroke-width="2" fill="none" />
+    </svg>`,
+  ],
+  'Shanghi': null,
+}
+
 // TESTING svg
 /*
-// Single slash
-<div style="position: relative; width: 50px;">
-  <svg style="position: absolute;" viewBox="0 0 40 40" stroke="black">
-    <path d="M9 6 L34 31 L30.5 34 L5.5 9.5 Z" />
-    Sorry, your browser does not support inline SVG.
-  </svg>
-</div>
+<svg viewBox="0 0 40 40" stroke="black">
+  <path d="M9 6 L34 31 L30.5 34 L5.5 9.5 Z" />
+  Sorry, your browser does not support inline SVG.
+</svg>
 
-// Double slash
-<div style="position: relative; width: 50px;">
-  <svg style="position: absolute;" viewBox="0 0 40 40" stroke="black">
+ <svg viewBox="0 0 40 40" stroke="black">
+  <g>
     <path d="M30 6 L6 30 L9 34 L34 9 Z" />
-    Sorry, your browser does not support inline SVG.
-  </svg>
-  <svg style="position: absolute;" viewBox="0 0 40 40" stroke="black">
     <path d="M9 6 L34 31 L30.5 34 L5.5 9.5 Z" />
-    Sorry, your browser does not support inline SVG.
-  </svg>
-</div>
+  </g>
+  Sorry, your browser does not support inline SVG.
+ </svg>
 
-// Tripple circle
-<div style="width: 50px;">
-  <svg  viewBox="0 0 15 15" stroke="black">
-    <circle cx="7.5" cy="7.5" r="6" stroke="black" stroke-width="2" fill="none" />
-  </svg>
-</div>
+
+<svg viewBox="0 0 15 15" stroke="black">
+  <circle cx="7.5" cy="7.5" r="6" stroke="black" stroke-width="2" fill="none" />
+</svg>
 */
 
 const GAMERULES = {
@@ -89,9 +101,9 @@ const GAMERULES = {
 let gameInfo = [];
 let gameCategories = [];
 let gameRules = {};
+let gameScores = [];
 let currentCategory = null;
 let players = [];
-
 let currentPlayer = null;
 let gameStarted = false;
 let gameOver = false;
@@ -152,6 +164,7 @@ function gameSelectionChanged(e){
   gameInfo = GAMES[`${e.target.innerHTML}`];
   gameCategories = gameInfo.slice(1);
   gameRules = GAMERULES[`${e.target.innerHTML}`];
+  gameScores = GAMESCORES[`${e.target.innerHTML}`];
   initialize();
   // Display the user info section
   document.getElementById('user-info-section').classList.add('show');
@@ -314,7 +327,12 @@ function updateScoreboard(){
     let element = document.getElementById(`c${currentPlayer.id}-${value}`);
 
     // update the UI
-    element.innerHTML = score;
+    if (gameScores){
+      element.innerHTML = gameScores[score];
+    }
+    else {
+      element.innerHTML = score;
+    }
 
     if (score == 0){
       if (gameRules['DisplayNoScore'] && value <= currentCategory){

@@ -45,11 +45,16 @@ html, body {
 }
 
 #scoreboad-header {
-  height: 8%;
+  height: 2em;
 }
 
 #scoreboad-header > th {
   width: 5em;
+}
+
+#scoreboard-container > table > tr > td > svg{
+  margin: auto;
+  width: 20%;
 }
 
 .showDartBoard {
