@@ -55,6 +55,21 @@ function clicked(e){
   selections.push(value);
 }
 
+function touchStart(e){
+  if(e.touches.length > 1){
+    e.preventDefault();
+
+    if (selections.length == 3){
+      return;
+    }
+
+    let element = e.target;
+    highlightElement(element);
+    let value = element.id.replace('-', ' ').replace('n1', '').replace('n2', '').trim();
+    selections.push(value);
+  }
+}
+
 function highlightElement(e){
   e.classList.add('highlight');
   setTimeout(function() {
@@ -78,7 +93,7 @@ function unHighlightElement(e){
 
 function addClickEvent(element){
   element.addEventListener('click', clicked);
-  element.addEventListener('touchstart', clicked);
+  element.addEventListener('touchstart', touchStart);
 }
 
 function createBoard(){

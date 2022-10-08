@@ -94,6 +94,7 @@ for (var key in GAMES){
   let l = document.createElement('label');
   l.innerHTML = key;
   addClickEvent(l, gameSelectionChanged);
+  addTouchStartEvent(l, gameSelectionChanged);
   gdc.appendChild(l)
 };
 
@@ -177,10 +178,10 @@ function getIndexAfterLastClosedCategory(){
 
 function addToResultsCollection(collection, key, value){
   if (!collection[key]){
-    collection[key] = 0;
+    collection[key] = [];
   }
 
-  collection[key] += value;
+  collection[key].push(value);
 }
 
 // populate the svg dart board scoreboard
@@ -239,7 +240,7 @@ function dartboardCallback(results){
     }
 
     return a;
-  }, {});
+  }, []);
 
   // joe testing
   if (isInstantWinner(results, validScores)){
@@ -298,23 +299,34 @@ function updateScoreboard(){
     return;
   }
   // get the scores
-  let scores = currentPlayer.getScores();
   let totalScore = 0;
-  for (let value in scores){
-    let score = scores[value];
+  for (let i = 0; i < gameCategories.length; i++){
+    let category = gameCategories[i];
+    let scores = currentPlayer.getScores(category);
+    let score = 0;
+    if (scores && scores.length > 0){
+      score = scores.reduce((res, item) => res + item, 0);
+    }
+
     totalScore += score;
-    let element = document.getElementById(`c${currentPlayer.id}-${value}`);
+    let element = document.getElementById(`c${currentPlayer.id}-${category}`);
 
     // update the UI
+    element.innerHTML = null;
+
     if (gameScores){
-      element.innerHTML = gameScores[score];
+      let displayScoreIndex = 0;
+      scores.forEach((item, i) => {
+        displayScoreIndex += item;
+        element.innerHTML += gameScores[displayScoreIndex];
+      });
     }
     else {
       element.innerHTML = score;
     }
 
     if (score == 0){
-      if (gameRules['DisplayNoScore'] && value <= currentCategory){
+      if (gameRules['DisplayNoScore'] && parseInt(category) <= currentCategory){
         element.innerHTML = 0;
       }
       else{
@@ -409,7 +421,8 @@ function getRow(value, id){
 function getHeader(value, id, addListener){
   let e = document.createElement('th');
   if(addListener){
-    addClickEvent(e, showDartBoard);
+    addClickEvent(e, showDartBoardClicked);
+    addTouchStartEvent(e, showDartBoardTouchStart);
   }
   setAtt(e, value, id);
   return e;
@@ -418,7 +431,8 @@ function getHeader(value, id, addListener){
 function getColumn(value, id, addListener){
   let e = document.createElement('td');
   if(addListener){
-    addClickEvent(e, showDartBoard);
+    addClickEvent(e, showDartBoardClicked);
+    addTouchStartEvent(e, showDartBoardTouchStart);
   }
   setAtt(e, value, id);
   return e;
@@ -553,13 +567,13 @@ function createNewScoresDictionary(){
   let newDict = {}
 
   gameCategories.forEach((value, i) => {
-    newDict[value.toString()] = 0;
+    newDict[value.toString()] = [];
   });
 
   return newDict;
 }
 
-function showDartBoard(e){
+function showDartBoardClicked(e){
   e.preventDefault();
 
   if (!gameStarted || gameOver){
@@ -567,6 +581,18 @@ function showDartBoard(e){
   }
 
   dartboard.display();
+}
+
+function showDartBoardTouchStart(e){
+  if(e.touches.length > 1){
+    e.preventDefault();
+
+    if (!gameStarted || gameOver){
+      return;
+    }
+
+    dartboard.display();
+  }
 }
 
 function startNewGame(e){
@@ -690,11 +716,18 @@ function closeDropDown(e){
 // add addEventListeners
 document.getElementById('new-player-name').addEventListener('keypress', newPlayerEnterPressed);
 addClickEvent(window, closeDropDown);
+addTouchStartEvent(window, closeDropDown);
 addClickEvent(document.getElementById('select-game-btn'), selectGameClicked);
+addTouchStartEvent(document.getElementById('select-game-btn'), selectGameClicked);
 addClickEvent(document.getElementById('new-player-btn'), newPlayerCLicked);
+addTouchStartEvent(document.getElementById('new-player-btn'), newPlayerCLicked);
 addClickEvent(document.getElementById('start-game-btn'), startNewGame);
+addTouchStartEvent(document.getElementById('start-game-btn'), startNewGame);
 
 function addClickEvent(e, callback){
   e.addEventListener('click', callback);
+}
+
+function addTouchStartEvent(e, callback){
   e.addEventListener('touchstart', callback);
 }

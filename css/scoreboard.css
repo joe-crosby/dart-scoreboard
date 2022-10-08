@@ -1,5 +1,5 @@
 .currentPlayer, .currentCategory {
-  background: #3385ff;
+  background: #3385ff !important;
 }
 
 .absolute-centered {
@@ -29,8 +29,8 @@
 }
 
 #scoreboard-container > table > tr, td {
-  position: relative;
   border: 2px solid black;
+  position: relative;
 }
 
 #scoreboad-header > th {
