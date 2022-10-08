@@ -5,10 +5,32 @@ const GAMES = {
 
 // TESTING svg
 /*
-<svg height="200" width="200">
-  <path d="M185 0 L0 185 L12 200 L200 15 Z" />
-  Sorry, your browser does not support inline SVG.
-</svg>
+// Single slash
+<div style="position: relative; width: 50px;">
+  <svg style="position: absolute;" viewBox="0 0 40 40" stroke="black">
+    <path d="M9 6 L34 31 L30.5 34 L5.5 9.5 Z" />
+    Sorry, your browser does not support inline SVG.
+  </svg>
+</div>
+
+// Double slash
+<div style="position: relative; width: 50px;">
+  <svg style="position: absolute;" viewBox="0 0 40 40" stroke="black">
+    <path d="M30 6 L6 30 L9 34 L34 9 Z" />
+    Sorry, your browser does not support inline SVG.
+  </svg>
+  <svg style="position: absolute;" viewBox="0 0 40 40" stroke="black">
+    <path d="M9 6 L34 31 L30.5 34 L5.5 9.5 Z" />
+    Sorry, your browser does not support inline SVG.
+  </svg>
+</div>
+
+// Tripple circle
+<div style="width: 50px;">
+  <svg  viewBox="0 0 15 15" stroke="black">
+    <circle cx="7.5" cy="7.5" r="6" stroke="black" stroke-width="2" fill="none" />
+  </svg>
+</div>
 */
 
 const GAMERULES = {
