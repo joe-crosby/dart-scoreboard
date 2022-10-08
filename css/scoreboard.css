@@ -2,15 +2,51 @@
   background: #3385ff;
 }
 
-/* Disable highlighting */
-:not(input) {
-  -webkit-touch-callout: none; /* iOS Safari */
-    -webkit-user-select: none; /* Safari */
-     -khtml-user-select: none; /* Konqueror HTML */
-       -moz-user-select: none; /* Old versions of Firefox */
-        -ms-user-select: none; /* Internet Explorer/Edge */
-            user-select: none; /* Non-prefixed version, currently
-                                  supported by Chrome, Edge, Opera and Firefox */
+.absolute-centered {
+  position: absolute;
+  margin: auto;
+  left: 0;
+  right: 0;
+  text-align: center;
+}
+
+#scoreboard-container {
+  background: white;
+  width: 100%;
+  height: 100%;
+}
+
+#scoreboard-container > table {
+  margin: auto;
+  border-collapse: collapse;
+  border-spacing: 0px;
+  background: White;
+  height: 95%;
+}
+
+#scoreboard-container > table > tr, th, td {
+  border: 2px solid black;
+}
+
+#scoreboard-container > table > tr, td {
+  position: relative;
+  border: 2px solid black;
+}
+
+#scoreboad-header > th {
+  width: 5em;
+}
+
+#scoreboard-container > table > tr > td > svg{
+  position: absolute;
+  margin: auto;
+  left: 0;
+  right:0;
+  top: 0;
+}
+
+#scoreboard-container > table > tr {
+  font-size: 30px;
 }
 
 .score {
@@ -43,8 +79,6 @@ button {
   float: right;
 }
 
-/****************************************************************************/
-/* Dropdown Button */
 .dropbtn {
   position: relative;
   background-color: #1c66d3;
@@ -57,17 +91,14 @@ button {
   width: 150px;
 }
 
-/* Dropdown button on hover & focus */
 .dropbtn:hover, .dropbtn:focus {
   background-color: #2980B9;
 }
 
-/* The container <div> - needed to position the dropdown content */
 .dropdown {
   display: inline-block;
 }
 
-/* Dropdown Content (Hidden by Default) */
 .dropdown-content {
   position: absolute;
   display: none;
@@ -76,7 +107,6 @@ button {
   z-index: 1;
 }
 
-/* Links inside the dropdown */
 .dropdown-content label {
   color: black;
   padding: 5px;
@@ -84,9 +114,27 @@ button {
   display: block;
 }
 
-/* Change color of dropdown links on hover */
 .dropdown-content label:hover {background-color: #ddd;}
 
-/* Show the dropdown menu (use JS to add this class to the .dropdown-content container when the user clicks on the dropdown button) */
 .show {display:block;}
-/****************************************************************************/
+
+/* Disable highlighting */
+:not(input) {
+  -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Old versions of Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome, Edge, Opera and Firefox */
+}
+
+@media screen and (max-height: 430px) {
+  #scoreboard-container > table {
+    height: 90%;
+  }
+
+  #scoreboard-container > table > tr {
+    font-size: 20px;
+  }
+}
