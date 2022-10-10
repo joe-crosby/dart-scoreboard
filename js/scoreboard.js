@@ -184,6 +184,14 @@ function addToResultsCollection(collection, key, value){
   collection[key].push(value);
 }
 
+function getSum(collection){
+  if (collection && collection.length > 0){
+    return collection.reduce((res, item) => res + item, 0);
+  }
+
+  return 0;
+}
+
 // populate the svg dart board scoreboard
 let dartboard = null;
 function dartboardCallback(results){
@@ -213,7 +221,7 @@ function dartboardCallback(results){
 
         let cat = gameCategories[maxIndex];
         let userScore = currentPlayer.getScore(cat);
-        while(a[`${cat}`] + userScore >= gameRules['CategoryClosed']){
+        while(getSum(a[`${cat}`]) + userScore >= gameRules['CategoryClosed']){
           cat = getNextCategory(cat);
           let currentCount = getCount(c, cat);
           if (currentCount > 0){
@@ -303,10 +311,7 @@ function updateScoreboard(){
   for (let i = 0; i < gameCategories.length; i++){
     let category = gameCategories[i];
     let scores = currentPlayer.getScores(category);
-    let score = 0;
-    if (scores && scores.length > 0){
-      score = scores.reduce((res, item) => res + item, 0);
-    }
+    let score = getSum(scores);
 
     totalScore += score;
     let element = document.getElementById(`c${currentPlayer.id}-${category}`);
