@@ -222,15 +222,17 @@ function dartboardCallback(results){
         let cat = gameCategories[maxIndex];
         let userScore = currentPlayer.getScore(cat);
 
-        // If we get to the end of the categories, exit the loop.
-        while(cat != gameCategories[gameCategories.length - 1] && getSum(a[`${cat}`]) + userScore >= gameRules['CategoryClosed']){
-          cat = getNextCategory(cat);
-          userScore = currentPlayer.getScore(cat);
-          let currentCount = getCount(c, cat);
-          if (currentCount > 0){
-            addToResultsCollection(a, `${cat}`, currentCount);
+        let remainingCategories = gameCategories.slice(maxIndex);
+        remainingCategories.forEach((item, i) => {
+          if (getSum(a[`${cat}`]) + userScore >= gameRules['CategoryClosed']){
+            cat = getNextCategory(cat);
+            userScore = currentPlayer.getScore(cat);
+            let currentCount = getCount(c, cat);
+            if (currentCount > 0){
+              addToResultsCollection(a, `${cat}`, currentCount);
+            }
           }
-        }
+        });
       }
       else {
         if (c.includes(currentCategory)){
