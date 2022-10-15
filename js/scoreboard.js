@@ -1,86 +1,15 @@
-const GAMES = {
-  'Cricket': ['Cricket', '20', '19', '18', '17', '16', '15', 'BULL'],
-  'Shanghi': ['Shanghi', '1', '2', '3', '4', '5', '6', '7'],
-}
+const AVAILABLEGAMES = [
+  'Cricket',
+  'Shanghi',
+];
 
-const GAMESCORES = {
-  'Cricket': [
-    null,
-    `<svg height="100%" viewBox="0 0 40 40" stroke="black">
-      <path d="M30 6 L6 30 L9 34 L34 9 Z" />
-      Sorry, your browser does not support inline SVG.
-     </svg>`,
-    `<svg height="100%" viewBox="0 0 40 40" stroke="black">
-       <g>
-         <path d="M30 6 L6 30 L9 34 L34 9 Z" />
-         <path d="M9 6 L34 31 L30.5 34 L5.5 9.5 Z" />
-       </g>
-     Sorry, your browser does not support inline SVG.
-    </svg>`,
-    `<svg height="100%" viewBox="0 0 15 15" stroke="black">
-       <circle cx="7.5" cy="7.5" r="6" stroke="black" stroke-width="2" fill="none" />
-     </svg>`,
-  ],
-  'Shanghi': null,
-}
+let LOADEDGAMES = [];
 
-const GAMERULES = {
-  'Cricket': {
-    'EnforceOrder': true,
-    'EnforceSingleRounds': false,
-    'CategoryClosed': 3,
-    'DisplayNoScore': false,
-    'MaxDisplayCount': 3,
-    'DisplayCountValues': [],
-    'IncludeTotals': false,
-    'InstantWinner': function(values){
-      return false;
-    },
-  },
-  'Shanghi': {
-    'EnforceOrder': true,
-    'EnforceSingleRounds': true,
-    'CategoryClosed': null,
-    'DisplayNoScore': true,
-    'MaxDisplayCount': null,
-    'DisplayCountValues': [],
-    'IncludeTotals': true,
-    'InstantWinner': function(player, results, validScores){
-      let scoreCount = 0;
-      for (let c in validScores){
-        scoreCount++;
-      }
-      if (scoreCount < 1 || results.length < 0){
-        return false;
-      }
-
-      let number = Object.keys(validScores)[0];
-
-      let sameNumber = results.reduce((r, item) => {
-        return number == parseInt(item.split('-')[1])
-      }, false);
-
-      let categories = results.reduce((r, item) => {
-        let cat = item.split('-')[0];
-        if (!r.includes(cat)) {
-          r.push(cat);
-        }
-        return r; /* important to keep separate */
-      }, []);
-
-      // In darts you only have 3 darts per turn. Since the categories are Tripple, Double, and Single,
-      // a user has a shanghi when the distinct category count is 3.
-      if (sameNumber && categories.length == 3){
-        return `${player.name} got Shanghi!`;
-      }
-    },
-  }
-}
+let currentGame = null;
 
 let gameInfo = [];
 let gameCategories = [];
-let gameRules = {};
-let gameScores = [];
+let gameScoreValues = [];
 let currentCategory = null;
 let players = [];
 let currentPlayer = null;
@@ -90,13 +19,13 @@ let tableIsDrawn = false;
 
 // add the games for selections
 let gdc = document.getElementById('select-game-dropdown');
-for (var key in GAMES){
+AVAILABLEGAMES.forEach((item, i) => {
   let l = document.createElement('label');
-  l.innerHTML = key;
+  l.innerHTML = item;
   addClickEvent(l, gameSelectionChanged);
   addTouchStartEvent(l, gameSelectionChanged);
   gdc.appendChild(l)
-};
+});
 
 function initialize(){
   setCurrentCategory(null);
@@ -127,7 +56,7 @@ function endGame(message){
 }
 
 function getWinners(){
-  if (gameRules['IncludeTotals']){
+  if (currentGame.includeTotals){
     let highScore = Math.max(...players.map(p => p.totalScore));
     return players.filter(p => p.totalScore == highScore);
   }
@@ -140,18 +69,33 @@ function getWinners(){
 function gameSelectionChanged(e){
   e.preventDefault();
 
+  // set the currentGame
+  switch(e.target.innerHTML){
+    case 'Cricket':
+      currentGame = LOADEDGAMES.find(x => x.getName() == e.target.innerHTML);
+      if (!currentGame){
+        currentGame = new Cricket();
+      }
+      break;
+    case 'Shanghi':
+      currentGame = LOADEDGAMES.find(x => x.getName() == e.target.innerHTML);
+      if (!currentGame){
+        currentGame = new Shanghi();
+      }
+      break;
+  }
+
   // update the UI
-  gameInfo = GAMES[`${e.target.innerHTML}`];
+  gameInfo = currentGame.getNameWithCategories();
   gameCategories = gameInfo.slice(1);
-  gameRules = GAMERULES[`${e.target.innerHTML}`];
-  gameScores = GAMESCORES[`${e.target.innerHTML}`];
+  gameScoreValues = currentGame.getScoreValues();
   initialize();
   // Display the user info section
   document.getElementById('user-info-section').classList.add('show');
 }
 
 function getIndexAfterLastClosedCategory(){
-  if (currentPlayer == null || gameRules['CategoryClosed'] == null){
+  if (currentPlayer == null || currentGame.categoryClosed == null){
     return 0;
   }
 
@@ -163,7 +107,7 @@ function getIndexAfterLastClosedCategory(){
 
     let total = currentPlayer.getScore(category);
 
-    if (total >= gameRules['CategoryClosed']){
+    if (total >= currentGame.categoryClosed){
       maxCategory = category;
     }
   }
@@ -206,8 +150,8 @@ function dartboardCallback(results){
   let upToCurrentCategories = gameCategories.filter((item, index) => index <= maxIndex);
 
   let validScores = results.reduce((a, c, i) => {
-    if (gameRules['EnforceOrder']){
-      if (gameRules['CategoryClosed'] != null){
+    if (currentGame.enforceOrder){
+      if (currentGame.categoryClosed != null){
         // values before current
         upToCurrentCategories.forEach((cat, i) => {
           let currentCount = getCount(c, cat);
@@ -224,7 +168,7 @@ function dartboardCallback(results){
 
         let remainingCategories = gameCategories.slice(maxIndex);
         remainingCategories.forEach((item, i) => {
-          if (getSum(a[`${cat}`]) + userScore >= gameRules['CategoryClosed']){
+          if (getSum(a[`${cat}`]) + userScore >= currentGame.categoryClosed){
             cat = getNextCategory(cat);
             userScore = currentPlayer.getScore(cat);
             let currentCount = getCount(c, cat);
@@ -255,19 +199,19 @@ function dartboardCallback(results){
     return a;
   }, []);
 
-  // joe testing
+  currentPlayer.addScores(validScores);
+
+  updateScoreboard();
+
   if (isInstantWinner(results, validScores)){
     return;
   }
 
-  currentPlayer.addScores(validScores);
-
-  updateScoreboard();
   setNextPlayer();
 }
 
 function isInstantWinner(results, validScores){
-  let response = gameRules['InstantWinner'](currentPlayer, results, validScores);
+  let response = currentGame.instantWinner(currentPlayer, results, validScores);
 
   if (response){
     endGame(response);
@@ -278,7 +222,7 @@ function isInstantWinner(results, validScores){
 }
 
 function validateScores(value){
-  if(gameRules['EnforceOrder']){
+  if(currentGame.enforceOrder){
     return value.includes(currentCategory);
   }
   else{
@@ -324,11 +268,11 @@ function updateScoreboard(){
     // update the UI
     element.innerHTML = null;
 
-    if (gameScores){
+    if (gameScoreValues){
       let displayScoreIndex = 0;
       scores.forEach((item, i) => {
         displayScoreIndex += item;
-        element.innerHTML += gameScores[displayScoreIndex];
+        element.innerHTML += gameScoreValues[displayScoreIndex];
       });
     }
     else {
@@ -336,7 +280,7 @@ function updateScoreboard(){
     }
 
     if (score == 0){
-      if (gameRules['DisplayNoScore'] && parseInt(category) <= currentCategory){
+      if (currentGame.displayNoScore && parseInt(category) <= currentCategory){
         element.innerHTML = 0;
       }
       else{
@@ -346,7 +290,7 @@ function updateScoreboard(){
   }
 
   // Update the Totals
-  if (gameRules['IncludeTotals']){
+  if (currentGame.includeTotals){
     currentPlayer.setTotalScore(totalScore);
     let totals = document.getElementById(`c${currentPlayer.id}-totals`);
     totals.innerHTML = currentPlayer.totalScore;
@@ -396,7 +340,7 @@ function drawScoreboard(){
       scoreboardTable.appendChild(r);
     });
 
-    if (gameRules['IncludeTotals']){
+    if (currentGame.includeTotals){
       let r = getRow(null, 'scoreboard-totals');
       r.appendChild(getScoreColumn('Totals', `totals`));
       scoreboardTable.appendChild(r);
@@ -481,7 +425,7 @@ function addPlayerToScoreboard(player){
       }
     });
 
-    if (gameRules['IncludeTotals']){
+    if (currentGame.includeTotals){
       let r = document.querySelector('#scoreboard-totals');
       r.appendChild(getColumn(null, `c${player.id}-totals`, true))
     }
@@ -535,7 +479,7 @@ function moveScoreColumn(){
         }
       });
 
-      if (gameRules['IncludeTotals']){
+      if (currentGame.includeTotals){
         let r = document.querySelector('#scoreboard-totals');
         let c = getColumn(null, null);
         c.classList.add('fakeColumn');
@@ -564,7 +508,7 @@ function newPlayerCLicked(e){
   let playerTb = document.getElementById('new-player-name');
   let playerName = playerTb.value;
   if (playerName) {
-    players.push(new Player(playerName, createNewScoresDictionary(), gameRules['MaxDisplayCount']));
+    players.push(new Player(playerName, createNewScoresDictionary(), currentGame.maxDisplayCount));
 
     // add the user to the Scoreboard
     addPlayerToScoreboard(players[players.length - 1]);
@@ -646,7 +590,7 @@ function setCurrentCategory(value){
      elements.item(i).classList.remove('currentCategory');
   }
 
-  if (gameRules['EnforceSingleRounds']){
+  if (currentGame.enforceSingleRounds){
     if (value != null){
       currentCategory = value;
       let element = document.getElementById(`score-${currentCategory}`);

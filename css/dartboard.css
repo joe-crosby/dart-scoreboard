@@ -30,11 +30,6 @@ html, body {
 }
 
 @media screen and (orientation: portrait) {
-  /* This will keep the absolute elements centered */
-  html, body {
-    position: relative;
-  }
-
   #board-display > svg  {
     width: 100%;
   }

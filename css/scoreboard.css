@@ -138,3 +138,10 @@ button {
     font-size: 20px;
   }
 }
+
+@media screen and (orientation: portrait) {
+  /* This will keep the absolute elements centered */
+  html, body {
+    position: relative;
+  }
+}
