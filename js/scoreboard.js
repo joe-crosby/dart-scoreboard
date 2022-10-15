@@ -75,12 +75,14 @@ function gameSelectionChanged(e){
       currentGame = LOADEDGAMES.find(x => x.getName() == e.target.innerHTML);
       if (!currentGame){
         currentGame = new Cricket();
+        LOADEDGAMES.push(currentGame);
       }
       break;
     case 'Shanghi':
       currentGame = LOADEDGAMES.find(x => x.getName() == e.target.innerHTML);
       if (!currentGame){
         currentGame = new Shanghi();
+        LOADEDGAMES.push(currentGame);
       }
       break;
   }
