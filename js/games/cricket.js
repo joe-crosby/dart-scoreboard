@@ -1,5 +1,6 @@
 class Cricket extends DartGame{
   static #categories = ['20', '19', '18', '17', '16', '15', 'BULL'];
+  static #singlePointValues = {'BULL': 25};
   static #scoreValues = [
     null,
     `<svg height="100%" viewBox="0 0 40 40" stroke="black">
@@ -19,9 +20,10 @@ class Cricket extends DartGame{
   ];
 
   constructor(){
-    super('Cricket', Cricket.#categories, Cricket.#scoreValues);
+    super('Cricket', Cricket.#categories, Cricket.#singlePointValues, Cricket.#scoreValues);
 
     this.categoryClosed =  3;
+    this.pointsWhenClosed = true;
     this.maxDisplayCount =  3;
   }
 }

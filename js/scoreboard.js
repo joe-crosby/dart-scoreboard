@@ -1,3 +1,5 @@
+"use strict";
+
 const AVAILABLEGAMES = [
   'Cricket',
   'Shanghi',
@@ -6,6 +8,10 @@ const AVAILABLEGAMES = [
 let LOADEDGAMES = [];
 
 let currentGame = null;
+let enablePointsLbl = document.getElementById('enable-points-label');
+function pointsAreEnabled() {
+  return enablePointsLbl.firstChild.checked;
+}
 
 let gameInfo = [];
 let gameCategories = [];
@@ -28,6 +34,9 @@ AVAILABLEGAMES.forEach((item, i) => {
 });
 
 function initialize(){
+  enablePointsLbl.classList.remove('show-inline');
+  enablePointsLbl.firstChild.checked = false;
+
   setCurrentCategory(null);
   // clear the players
   clearPlayers();
@@ -57,8 +66,8 @@ function endGame(message){
 
 function getWinners(){
   if (currentGame.includeTotals){
-    let highScore = Math.max(...players.map(p => p.totalScore));
-    return players.filter(p => p.totalScore == highScore);
+    let highScore = Math.max(...players.map(p => p.getTotalScore()));
+    return players.filter(p => p.getTotalScore() == highScore);
   }
   else {
     // Cricket - First to bull out -- Need to account for scoring in the future.
@@ -94,32 +103,10 @@ function gameSelectionChanged(e){
   initialize();
   // Display the user info section
   document.getElementById('user-info-section').classList.add('show');
-}
 
-function getIndexAfterLastClosedCategory(){
-  if (currentPlayer == null || currentGame.categoryClosed == null){
-    return 0;
+  if (currentGame.pointsWhenClosed){
+    enablePointsLbl.classList.add('show-inline');
   }
-
-  // check for max closed category on players
-  let maxCategory = null;
-
-  for (let index = 0; index < gameCategories.length; index++){
-    let category = gameCategories[index];
-
-    let total = currentPlayer.getScore(category);
-
-    if (total >= currentGame.categoryClosed){
-      maxCategory = category;
-    }
-  }
-
-  if (maxCategory == null){
-    return 0;
-  }
-
-  // We must use the gameCategories list because javascript objects (dicts) do not preserve order.
-  return gameCategories.indexOf(maxCategory) + 1;
 }
 
 function addToResultsCollection(collection, key, value){
@@ -148,7 +135,7 @@ function dartboardCallback(results){
 
   dartboard.hide();
 
-  let maxIndex = getIndexAfterLastClosedCategory();
+  let maxIndex =  gameCategories.indexOf(currentPlayer.getLastClosedCategory()) + 1;
   let upToCurrentCategories = gameCategories.filter((item, index) => index <= maxIndex);
 
   let validScores = results.reduce((a, c, i) => {
@@ -199,9 +186,9 @@ function dartboardCallback(results){
     }
 
     return a;
-  }, []);
+  }, {});
 
-  currentPlayer.addScores(validScores);
+  handlePoints(currentPlayer.addScores(validScores));
 
   updateScoreboard();
 
@@ -210,6 +197,19 @@ function dartboardCallback(results){
   }
 
   setNextPlayer();
+}
+
+// When the number is open (at lease 1 opponent has not closed it)
+function handlePoints(pointsCollection){
+  if (pointsAreEnabled()){
+    for (let category in pointsCollection){
+      let isOpen = players.filter((p, i) => p != currentPlayer && !p.isClosed(category)).length > 0;
+      if (isOpen){
+        // current player gets the score, not the opponents.
+        currentPlayer.addPoints(category, pointsCollection[category]);
+      }
+    }
+  }
 }
 
 function isInstantWinner(results, validScores){
@@ -295,8 +295,30 @@ function updateScoreboard(){
   if (currentGame.includeTotals){
     currentPlayer.setTotalScore(totalScore);
     let totals = document.getElementById(`c${currentPlayer.id}-totals`);
-    totals.innerHTML = currentPlayer.totalScore;
+    totals.innerHTML = currentPlayer.getTotalScore();
   }
+
+  updatePoints();
+}
+
+function updatePoints(){
+  if (!pointsAreEnabled()){
+    return;
+  }
+
+  players.forEach((p, i) => {
+    let label = document.getElementById(`c${p.id}-points`);
+    if (!label){
+      let element = document.getElementById(`c${p.id}-${currentGame.getName()}`);
+      label = document.createElement('label');
+      label.classList.add('player-points');
+      label.setAttribute('id', `c${p.id}-points`)
+      element.appendChild(label);
+    }
+
+    label.innerHTML = p.getPoints();
+  });
+
 }
 
 let boardDisplay = document.getElementById('board-display');
@@ -510,7 +532,7 @@ function newPlayerCLicked(e){
   let playerTb = document.getElementById('new-player-name');
   let playerName = playerTb.value;
   if (playerName) {
-    players.push(new Player(playerName, createNewScoresDictionary(), currentGame.maxDisplayCount));
+    players.push(new Player(playerName, gameCategories, currentGame.maxDisplayCount, currentGame.getSinglePointValues()));
 
     // add the user to the Scoreboard
     addPlayerToScoreboard(players[players.length - 1]);
@@ -612,10 +634,21 @@ function setNextPlayer(){
   }
 
   // Check for game over
-  let next = getIndexAfterLastClosedCategory();
+  let next = 0;
+  if (currentPlayer != null){
+    next = gameCategories.indexOf(currentPlayer.getLastClosedCategory()) + 1;
+  }
+
+  // when the current user closes the lat category, they win.
+  // when points are enabled, the current user must also have the most points to win.
   if(next >= gameCategories.length){
-    endGame();
-    return;
+    let mostPoints = Math.max(...players.map(p => p.getPoints()));
+    let hasMostPoints = currentPlayer.getPoints() >= mostPoints;
+
+    if (!pointsAreEnabled() || (pointsAreEnabled() && hasMostPoints)){
+      endGame();
+      return;
+    }
   }
 
   if (nextPlayerIndex >= players.length){
@@ -623,7 +656,7 @@ function setNextPlayer(){
     nextPlayerIndex = 0;
 
     if (currentCategory != null){
-      nextCategoryIndex = gameInfo.indexOf(currentCategory) + 1;
+      let nextCategoryIndex = gameInfo.indexOf(currentCategory) + 1;
       if (nextCategoryIndex < gameInfo.length){
         setCurrentCategory(getNextCategory(currentCategory));
       }
@@ -675,8 +708,6 @@ addClickEvent(window, closeDropDown);
 addTouchStartEvent(window, closeDropDown);
 addClickEvent(document.getElementById('select-game-btn'), selectGameClicked);
 addTouchStartEvent(document.getElementById('select-game-btn'), selectGameClicked);
-addClickEvent(document.getElementById('new-player-btn'), newPlayerCLicked);
-addTouchStartEvent(document.getElementById('new-player-btn'), newPlayerCLicked);
 addClickEvent(document.getElementById('start-game-btn'), startNewGame);
 addTouchStartEvent(document.getElementById('start-game-btn'), startNewGame);
 

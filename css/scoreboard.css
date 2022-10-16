@@ -49,6 +49,12 @@
   font-size: 30px;
 }
 
+.player-points {
+  display: block;
+  font-size: 20px;
+  color: red;
+}
+
 .score {
   background: #e3edfb;
   font-weight: bold;
@@ -68,6 +74,15 @@
 }
 
 #user-info-section.show {
+  display: inline-block;
+}
+
+.points-option {
+  text-align: right;
+  display: none;
+}
+
+.show-inline {
   display: inline-block;
 }
 

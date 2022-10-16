@@ -1,10 +1,12 @@
 class DartGame{
   #name = null;
   #categories = null;
+  #singlePointValues = null;
   #scoreValues = null;
   enforceOrder = true;
   enforceSingleRounds = false;
   categoryClosed =  null;
+  pointsWhenClosed = false;
   /* When the number is 0, display 0 */
   displayNoScore =  false;
   maxDisplayCount =  null;
@@ -13,9 +15,10 @@ class DartGame{
     return false;
   }
 
-  constructor(gameName, gameCategories, gameScoreValues){
+  constructor(gameName, gameCategories, gameSinglePointValues, gameScoreValues){
     this.#name = gameName;
     this.#categories = gameCategories;
+    this.#singlePointValues = gameSinglePointValues;
     this.#scoreValues = gameScoreValues;
   }
 
@@ -33,5 +36,9 @@ class DartGame{
 
   getScoreValues(){
     return this.#scoreValues;
+  }
+
+  getSinglePointValues(){
+    return this.#singlePointValues;
   }
 }
