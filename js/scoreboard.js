@@ -192,35 +192,80 @@ function dartboardCallback(results){
 
   updateScoreboard();
 
-  if (isInstantWinner(results, validScores)){
-    return;
-  }
-
-  setNextPlayer();
+  checkGameOver(results, validScores);
 }
 
-// When the number is open (at lease 1 opponent has not closed it)
-function handlePoints(pointsCollection){
-  if (pointsAreEnabled()){
-    for (let category in pointsCollection){
-      let isOpen = players.filter((p, i) => p != currentPlayer && !p.isClosed(category)).length > 0;
-      if (isOpen){
-        // current player gets the score, not the opponents.
-        currentPlayer.addPoints(category, pointsCollection[category]);
-      }
-    }
-  }
-}
-
-function isInstantWinner(results, validScores){
+function checkGameOver(results, validScores){
   let response = currentGame.instantWinner(currentPlayer, results, validScores);
 
   if (response){
     endGame(response);
     return true;
   }
+  else {
+    let gameOver = false;
 
-  return false;
+    // Check for game over
+    let nextPlayerIndex = 0;
+    if (currentPlayer != null){
+      nextPlayerIndex = gameCategories.indexOf(currentPlayer.getLastClosedCategory()) + 1;
+    }
+
+    // when the current user closes the last category, they win.
+    // when points are enabled, the current user must also have the most points to win.
+    if(nextPlayerIndex >= gameCategories.length){
+      let mostPoints = Math.max(...players.map(p => p.getPoints()));
+      let hasMostPoints = currentPlayer.getPoints() >= mostPoints;
+
+      if (!pointsAreEnabled() || (pointsAreEnabled() && hasMostPoints)){
+        gameOver = true;
+      }
+    }
+    else{
+      nextPlayerIndex = 0;
+
+      if (currentPlayer != null){
+        nextPlayerIndex = players.indexOf(currentPlayer) + 1;
+      }
+
+      if (nextPlayerIndex >= players.length){
+        // reset to first player;
+        nextPlayerIndex = 0;
+
+        if (currentCategory != null){
+          let nextCategoryIndex = gameInfo.indexOf(currentCategory) + 1;
+          if (nextCategoryIndex < gameInfo.length){
+            setCurrentCategory(getNextCategory(currentCategory));
+          }
+          else{
+            gameOver = true;
+          }
+        }
+      }
+    }
+
+    if (gameOver){
+      endGame();
+    }
+    else{
+      setNextPlayer(nextPlayerIndex);
+    }
+
+    return gameOver;
+  }
+}
+
+// When the number is open (at lease 1 opponent has not closed it)
+function handlePoints(pointsCollection){
+  if (pointsAreEnabled()){
+    for (let category in pointsCollection){
+      let isOpen = players.length == 1 || players.filter((p, i) => p != currentPlayer && !p.isClosed(category)).length > 0;
+      if (isOpen){
+        // current player gets the score, not the opponents.
+        currentPlayer.addPoints(category, pointsCollection[category]);
+      }
+    }
+  }
 }
 
 function validateScores(value){
@@ -585,7 +630,7 @@ function startNewGame(e){
   }
 
   // set the current player
-  setNextPlayer();
+  setNextPlayer(0);
 
   gameStarted = true;
 
@@ -625,49 +670,7 @@ function setCurrentCategory(value){
   }
 }
 
-function setNextPlayer(){
-
-  let nextPlayerIndex = 0;
-
-  if (currentPlayer != null){
-    nextPlayerIndex = players.indexOf(currentPlayer) + 1;
-  }
-
-  // Check for game over
-  let next = 0;
-  if (currentPlayer != null){
-    next = gameCategories.indexOf(currentPlayer.getLastClosedCategory()) + 1;
-  }
-
-  // when the current user closes the lat category, they win.
-  // when points are enabled, the current user must also have the most points to win.
-  if(next >= gameCategories.length){
-    let mostPoints = Math.max(...players.map(p => p.getPoints()));
-    let hasMostPoints = currentPlayer.getPoints() >= mostPoints;
-
-    if (!pointsAreEnabled() || (pointsAreEnabled() && hasMostPoints)){
-      endGame();
-      return;
-    }
-  }
-
-  if (nextPlayerIndex >= players.length){
-    // reset to first player;
-    nextPlayerIndex = 0;
-
-    if (currentCategory != null){
-      let nextCategoryIndex = gameInfo.indexOf(currentCategory) + 1;
-      if (nextCategoryIndex < gameInfo.length){
-        setCurrentCategory(getNextCategory(currentCategory));
-      }
-      else{
-        // End the game
-        endGame();
-        return;
-      }
-    }
-  }
-
+function setNextPlayer(nextPlayerIndex){
   let elements = document.getElementsByClassName('currentPlayer');
   for (var i = 0; i < elements.length; i++) {
      elements.item(i).classList.remove('currentPlayer');
