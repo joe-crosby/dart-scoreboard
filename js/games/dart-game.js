@@ -56,4 +56,13 @@ class DartGame{
   getSingleScoreValues(){
     return this.#singleScoreValues;
   }
+
+  convertToCollection(arrOfDict){
+    return arrOfDict.reduce((res, item) => {
+      if (item.value.length > 0){
+        res[item.key] = item.value;
+      }
+      return res;
+    }, {});
+  }
 }

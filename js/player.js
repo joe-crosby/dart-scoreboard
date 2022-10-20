@@ -119,12 +119,7 @@ class Player{
       }
     }
 
-    let newCollection = collection.reduce((res, item) => {
-      if (item.value.length > 0){
-        res[item.key] = item.value;
-      }
-      return res;
-    }, {});
+    let newCollection = this.#convertToCollection(collection);
 
     if (this.#totalScoreCollection.length > 0){
       // We take the last item in the totalScoreCollection and subtract the sum of the addScores
@@ -195,6 +190,15 @@ class Player{
 
       return points;
     }
+  }
+
+  #convertToCollection(arrOfDict){
+    return arrOfDict.reduce((res, item) => {
+      if (item.value.length > 0){
+        res[item.key] = item.value;
+      }
+      return res;
+    }, {});
   }
 
   #setDoubledOut(val){

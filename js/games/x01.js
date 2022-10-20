@@ -3,7 +3,7 @@ class X01 extends DartGame{
   static #singleScoreValues = {'BULL': 25};
 
   constructor(x){
-    super(`${x}01`, X01.#categories, null, X01.#singleScoreValues);
+    super(`${x}-01`, X01.#categories, null, X01.#singleScoreValues);
     this.doubleInOption = true;
     this.doubleOutOption = true;
     this.enforceOrder = false;

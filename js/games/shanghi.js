@@ -8,15 +8,9 @@ class Shanghi extends DartGame{
     this.displayNoScore =  true;
     this.includeTotals =  true;
     this.instantWinner =  function(player, results, validScores){
-      let scoreCount = 0;
-      for (let c in validScores){
-        scoreCount++;
-      }
-      if (scoreCount < 1 || results.length < 0){
-        return false;
-      }
+      let validScoresCollection = this.convertToCollection(validScores);
 
-      let number = Object.keys(validScores)[0];
+      let number = Object.keys(validScoresCollection)[0];
 
       let sameNumber = results.reduce((r, item) => {
         return number == parseInt(item.split('-')[1])

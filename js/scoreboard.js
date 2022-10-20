@@ -30,11 +30,11 @@ function pointsAreEnabled() {
 }
 
 function doubleInIsEnabled() {
-  return doubleInLabel.firstChild.checked;
+  return currentGame.doubleInEnabled;
 }
 
 function doubleOutIsEnabled() {
-  return doubleOutLabel.firstChild.checked;
+  return currentGame.doubleOutEnabled;
 }
 
 let gameInfo = [];
@@ -144,29 +144,26 @@ function gameSelectionChanged(e){
 
   if (currentGame.pointsWhenClosedOption){
     enablePointsLbl.classList.add('show-inline');
-    enablePointsLbl.firstChild.checked = currentGame.pointsWhenClosedEnabled;
+    enablePointsLbl.firstChild.checked = pointsAreEnabled();
   }
   else{
     enablePointsLbl.classList.remove('show-inline');
-    enablePointsLbl.firstChild.checked = false;
   }
 
   if (currentGame.doubleInOption){
     doubleInLabel.classList.add('show-inline');
-    doubleInLabel.firstChild.checked = currentGame.doubleInEnabled;
+    doubleInLabel.firstChild.checked = doubleInIsEnabled();
   }
   else{
     doubleInLabel.classList.remove('show-inline');
-    doubleInLabel.firstChild.checked = false;
   }
 
   if (currentGame.doubleOutOption){
     doubleOutLabel.classList.add('show-inline');
-    doubleOutLabel.firstChild.checked = currentGame.doubleOutEnabled;
+    doubleOutLabel.firstChild.checked = doubleOutIsEnabled();
   }
   else{
     doubleOutLabel.classList.remove('show-inline');
-    doubleOutLabel.firstChild.checked = false;
   }
 }
 
@@ -248,14 +245,12 @@ function dartboardCallback(results){
     return a;
   }, []);
 
-  handlePoints(currentPlayer.addScores(validScores, currentGame.doubleInEnabled));
-
-  // I have to update the score before calling checkGameOver() unless if figure
-  // out a different way to set the next player outside of the checkGameOver method
-  updateScoreboard();
+  handlePoints(currentPlayer.addScores(validScores, doubleInIsEnabled()));
 
   let response = currentGame.instantWinner(currentPlayer, results, validScores);
   let gameOver = checkGameOver(results, validScores);
+
+  updateScoreboard();
 
   if (response){
     endGame(response);
@@ -263,17 +258,41 @@ function dartboardCallback(results){
   else if (gameOver){
     endGame();
   }
+  else{
+    if (getNextCategoryIndex() < gameInfo.length && getNextPlayerIndex() >= players.length){
+      setCurrentCategory(getNextCategory(currentCategory));
+    }
+
+    setNextPlayer(getNextPlayerIndex());
+  }
+}
+
+function getNextPlayerIndex(){
+  let nextPlayerIndex = 0;
+  if (currentPlayer != null){
+    nextPlayerIndex = players.indexOf(currentPlayer) + 1;
+  }
+
+  return nextPlayerIndex;
+}
+
+function getNextCategoryIndex(){
+  let nextCategoryIndex = 0;
+  if (currentPlayer != null){
+    if (currentGame.categoryClosed){
+      nextCategoryIndex = gameCategories.indexOf(currentPlayer.getLastClosedCategory()) + 1;
+    }
+    else {
+      nextCategoryIndex = gameInfo.indexOf(currentCategory) + 1;
+    }
+  }
+
+  return nextCategoryIndex;
 }
 
 function checkGameOver(results, validScores){
   let gameOver = false;
-  let nextPlayerIndex = 0;
-
-  // Check for game over
-  let nextCategoryIndex = 0;
-  if (currentPlayer != null){
-    nextCategoryIndex = gameCategories.indexOf(currentPlayer.getLastClosedCategory()) + 1;
-  }
+  let nextCategoryIndex = getNextCategoryIndex();
 
   let mostPoints = Math.max(...players.map(p => p.getPoints()));
   let hasMostPoints = currentPlayer.getPoints() >= mostPoints;
@@ -287,20 +306,9 @@ function checkGameOver(results, validScores){
     gameOver = true;
   }
   else{
-    if (currentPlayer != null){
-      nextPlayerIndex = players.indexOf(currentPlayer) + 1;
-    }
-
-    if (nextPlayerIndex >= players.length){
-      // reset to first player;
-      nextPlayerIndex = 0;
-
+    if (getNextPlayerIndex() >= players.length){
       if (currentCategory != null){
-        let nextCategoryIndex = gameInfo.indexOf(currentCategory) + 1;
-        if (nextCategoryIndex < gameInfo.length){
-          setCurrentCategory(getNextCategory(currentCategory));
-        }
-        else{
+        if (nextCategoryIndex >= gameInfo.length){
           gameOver = true;
         }
       }
@@ -308,15 +316,11 @@ function checkGameOver(results, validScores){
   }
 
   // check for doubled out
-  if (gameOver && currentGame.doubleOutEnabled){
+  if (gameOver && doubleOutIsEnabled()){
     if (!currentPlayer.doubledOut){
       currentPlayer.removePreviousScores();
       gameOver = false;
     }
-  }
-
-  if (!gameOver){
-    setNextPlayer(nextPlayerIndex);
   }
 
   return gameOver;
@@ -767,6 +771,11 @@ function setNextPlayer(nextPlayerIndex){
   let elements = document.getElementsByClassName('currentPlayer');
   for (var i = 0; i < elements.length; i++) {
      elements.item(i).classList.remove('currentPlayer');
+  }
+
+  if (nextPlayerIndex >= players.length){
+    // reset to first player;
+    nextPlayerIndex = 0;
   }
 
   currentPlayer = players[nextPlayerIndex];
