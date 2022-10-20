@@ -20,10 +20,10 @@ class Cricket extends DartGame{
   ];
 
   constructor(){
-    super('Cricket', Cricket.#categories, Cricket.#singlePointValues, Cricket.#scoreValues);
+    super('Cricket', Cricket.#categories, Cricket.#singlePointValues, null, Cricket.#scoreValues);
 
     this.categoryClosed =  3;
-    this.pointsWhenClosed = true;
+    this.pointsWhenClosedOption = true;
     this.maxDisplayCount =  3;
   }
 }

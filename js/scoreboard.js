@@ -3,14 +3,38 @@
 const AVAILABLEGAMES = [
   'Cricket',
   'Shanghi',
+  '3-01',
+  '5-01',
 ];
 
 let LOADEDGAMES = [];
 
 let currentGame = null;
 let enablePointsLbl = document.getElementById('enable-points-label');
+enablePointsLbl.firstChild.addEventListener('change', function() {
+  currentGame.pointsWhenClosedEnabled = this.checked;
+});
+
+let doubleInLabel = document.getElementById('double-in-label');
+doubleInLabel.firstChild.addEventListener('change', function() {
+  currentGame.doubleInEnabled = this.checked;
+});
+
+let doubleOutLabel = document.getElementById('double-out-label');
+doubleOutLabel.firstChild.addEventListener('change', function() {
+  currentGame.doubleOutEnabled = this.checked;
+});
+
 function pointsAreEnabled() {
-  return enablePointsLbl.firstChild.checked;
+  return currentGame.pointsWhenClosedEnabled;
+}
+
+function doubleInIsEnabled() {
+  return doubleInLabel.firstChild.checked;
+}
+
+function doubleOutIsEnabled() {
+  return doubleOutLabel.firstChild.checked;
 }
 
 let gameInfo = [];
@@ -34,9 +58,6 @@ AVAILABLEGAMES.forEach((item, i) => {
 });
 
 function initialize(){
-  enablePointsLbl.classList.remove('show-inline');
-  enablePointsLbl.firstChild.checked = false;
-
   setCurrentCategory(null);
   // clear the players
   clearPlayers();
@@ -65,7 +86,10 @@ function endGame(message){
 }
 
 function getWinners(){
-  if (currentGame.includeTotals){
+  if (currentGame.playToZero){
+    return players.filter(p => p.getTotalScore() == 0);
+  }
+  else if (currentGame.includeTotals){
     let highScore = Math.max(...players.map(p => p.getTotalScore()));
     return players.filter(p => p.getTotalScore() == highScore);
   }
@@ -94,6 +118,20 @@ function gameSelectionChanged(e){
         LOADEDGAMES.push(currentGame);
       }
       break;
+    case '3-01':
+      currentGame = LOADEDGAMES.find(x => x.getName() == '3-01');
+      if (!currentGame){
+        currentGame = new X01(3);
+        LOADEDGAMES.push(currentGame);
+      }
+      break;
+    case '5-01':
+      currentGame = LOADEDGAMES.find(x => x.getName() == '5-01');
+      if (!currentGame){
+        currentGame = new X01(5);
+        LOADEDGAMES.push(currentGame);
+      }
+      break;
   }
 
   // update the UI
@@ -104,17 +142,42 @@ function gameSelectionChanged(e){
   // Display the user info section
   document.getElementById('user-info-section').classList.add('show');
 
-  if (currentGame.pointsWhenClosed){
+  if (currentGame.pointsWhenClosedOption){
     enablePointsLbl.classList.add('show-inline');
+    enablePointsLbl.firstChild.checked = currentGame.pointsWhenClosedEnabled;
+  }
+  else{
+    enablePointsLbl.classList.remove('show-inline');
+    enablePointsLbl.firstChild.checked = false;
+  }
+
+  if (currentGame.doubleInOption){
+    doubleInLabel.classList.add('show-inline');
+    doubleInLabel.firstChild.checked = currentGame.doubleInEnabled;
+  }
+  else{
+    doubleInLabel.classList.remove('show-inline');
+    doubleInLabel.firstChild.checked = false;
+  }
+
+  if (currentGame.doubleOutOption){
+    doubleOutLabel.classList.add('show-inline');
+    doubleOutLabel.firstChild.checked = currentGame.doubleOutEnabled;
+  }
+  else{
+    doubleOutLabel.classList.remove('show-inline');
+    doubleOutLabel.firstChild.checked = false;
   }
 }
 
 function addToResultsCollection(collection, key, value){
-  if (!collection[key]){
-    collection[key] = [];
+  // when non-existent, add it
+  if (!collection.find(x => x.key == key)){
+    collection.push({ key: key, value: [] });
   }
 
-  collection[key].push(value);
+  let scores = collection.find(x => x.key == key).value;
+  scores.push(value);
 }
 
 function getSum(collection){
@@ -149,15 +212,12 @@ function dartboardCallback(results){
           }
         });
 
-        // Figure out how to allow players to move past their max closed category.
-        // need to get the current user score plus the added score.
-
         let cat = gameCategories[maxIndex];
         let userScore = currentPlayer.getScore(cat);
 
         let remainingCategories = gameCategories.slice(maxIndex);
         remainingCategories.forEach((item, i) => {
-          if (getSum(a[`${cat}`]) + userScore >= currentGame.categoryClosed){
+          if (a.find(x => x.key == cat) && getSum(a.find(x => x.key == cat).value) + userScore >= currentGame.categoryClosed){
             cat = getNextCategory(cat);
             userScore = currentPlayer.getScore(cat);
             let currentCount = getCount(c, cat);
@@ -186,73 +246,80 @@ function dartboardCallback(results){
     }
 
     return a;
-  }, {});
+  }, []);
 
-  handlePoints(currentPlayer.addScores(validScores));
+  handlePoints(currentPlayer.addScores(validScores, currentGame.doubleInEnabled));
 
+  // I have to update the score before calling checkGameOver() unless if figure
+  // out a different way to set the next player outside of the checkGameOver method
   updateScoreboard();
 
-  checkGameOver(results, validScores);
-}
-
-function checkGameOver(results, validScores){
   let response = currentGame.instantWinner(currentPlayer, results, validScores);
+  let gameOver = checkGameOver(results, validScores);
 
   if (response){
     endGame(response);
-    return true;
   }
-  else {
-    let gameOver = false;
+  else if (gameOver){
+    endGame();
+  }
+}
 
-    // Check for game over
-    let nextPlayerIndex = 0;
+function checkGameOver(results, validScores){
+  let gameOver = false;
+  let nextPlayerIndex = 0;
+
+  // Check for game over
+  let nextCategoryIndex = 0;
+  if (currentPlayer != null){
+    nextCategoryIndex = gameCategories.indexOf(currentPlayer.getLastClosedCategory()) + 1;
+  }
+
+  let mostPoints = Math.max(...players.map(p => p.getPoints()));
+  let hasMostPoints = currentPlayer.getPoints() >= mostPoints;
+
+  if (currentGame.playToZero && currentPlayer.getTotalScore() == 0){
+    gameOver = true;
+  }
+  // when the current user closes the last category, they win.
+  // when points are enabled, the current user must also have the most points to win.
+  else if(nextCategoryIndex >= gameCategories.length && (!pointsAreEnabled() || (pointsAreEnabled() && hasMostPoints))){
+    gameOver = true;
+  }
+  else{
     if (currentPlayer != null){
-      nextPlayerIndex = gameCategories.indexOf(currentPlayer.getLastClosedCategory()) + 1;
+      nextPlayerIndex = players.indexOf(currentPlayer) + 1;
     }
 
-    // when the current user closes the last category, they win.
-    // when points are enabled, the current user must also have the most points to win.
-    if(nextPlayerIndex >= gameCategories.length){
-      let mostPoints = Math.max(...players.map(p => p.getPoints()));
-      let hasMostPoints = currentPlayer.getPoints() >= mostPoints;
-
-      if (!pointsAreEnabled() || (pointsAreEnabled() && hasMostPoints)){
-        gameOver = true;
-      }
-    }
-    else{
+    if (nextPlayerIndex >= players.length){
+      // reset to first player;
       nextPlayerIndex = 0;
 
-      if (currentPlayer != null){
-        nextPlayerIndex = players.indexOf(currentPlayer) + 1;
-      }
-
-      if (nextPlayerIndex >= players.length){
-        // reset to first player;
-        nextPlayerIndex = 0;
-
-        if (currentCategory != null){
-          let nextCategoryIndex = gameInfo.indexOf(currentCategory) + 1;
-          if (nextCategoryIndex < gameInfo.length){
-            setCurrentCategory(getNextCategory(currentCategory));
-          }
-          else{
-            gameOver = true;
-          }
+      if (currentCategory != null){
+        let nextCategoryIndex = gameInfo.indexOf(currentCategory) + 1;
+        if (nextCategoryIndex < gameInfo.length){
+          setCurrentCategory(getNextCategory(currentCategory));
+        }
+        else{
+          gameOver = true;
         }
       }
     }
-
-    if (gameOver){
-      endGame();
-    }
-    else{
-      setNextPlayer(nextPlayerIndex);
-    }
-
-    return gameOver;
   }
+
+  // check for doubled out
+  if (gameOver && currentGame.doubleOutEnabled){
+    if (!currentPlayer.doubledOut){
+      currentPlayer.removePreviousScores();
+      gameOver = false;
+    }
+  }
+
+  if (!gameOver){
+    setNextPlayer(nextPlayerIndex);
+  }
+
+  return gameOver;
 }
 
 // When the number is open (at lease 1 opponent has not closed it)
@@ -302,6 +369,21 @@ function updateScoreboard(){
   if (currentPlayer == null){
     return;
   }
+
+  if (currentGame.playToZero){
+    // loop through each round of scores and display them in order down a column.
+    // not next to a specific categoryClosed
+    let element = document.getElementById(`c${currentPlayer.id}-${gameCategories[0]}`);
+    element.innerHTML = null;
+    currentPlayer.getTotalScoreCollection().forEach((item, i) => {
+        let l = document.createElement('label');
+        l.innerHTML = item;
+        element.appendChild(l);
+    });
+
+    return;
+  }
+
   // get the scores
   let totalScore = 0;
   for (let i = 0; i < gameCategories.length; i++){
@@ -473,26 +555,36 @@ function setAtt(element, value, id){
 
 function addPlayerToScoreboard(player){
   if (gameInfo){
-    gameInfo.forEach((item, i) => {
-      // row
-      let r = null;
+    if (currentGame.singleColumnScores)
+    {
+      document.querySelector('#scoreboad-header').appendChild(getHeader(player.name, `c${player.id}-${gameInfo[0]}`));
+      let col = getColumn(null, `c${player.id}-${gameCategories[0]}`, true);
+      col.setAttribute('rowspan', `${gameCategories.length}`)
+      col.classList.add('single-column-score');
+      document.querySelector(`#r${gameCategories[0]}`).appendChild(col);
+    }
+    else{
+      gameInfo.forEach((item, i) => {
+        // row
+        let r = null;
 
-      if (i == 0){
-        r = document.querySelector('#scoreboad-header');
-      }
-      else{
-        r = document.querySelector(`#r${item}`);
-      }
+        if (i == 0){
+          r = document.querySelector('#scoreboad-header');
+        }
+        else{
+          r = document.querySelector(`#r${item}`);
+        }
 
-      // header
-      if (i == 0){
-        r.appendChild(getHeader(player.name, `c${player.id}-${item}`));
-      }
-      else{
-        // rows
-        r.appendChild(getColumn(null, `c${player.id}-${item}`, true))
-      }
-    });
+        // header
+        if (i == 0){
+          r.appendChild(getHeader(player.name, `c${player.id}-${item}`));
+        }
+        else{
+          // rows
+          r.appendChild(getColumn(null, `c${player.id}-${item}`, true));
+        }
+      });
+    }
 
     if (currentGame.includeTotals){
       let r = document.querySelector('#scoreboard-totals');
@@ -517,8 +609,9 @@ function moveScoreColumn(){
       let cells = [...item.cells];
       let scoreCol = item.querySelector('[id^="score-"]');
       let nextElement = cells[cells.indexOf(scoreCol) + 1];
-
-      item.insertBefore(nextElement, scoreCol);
+      if (nextElement){
+        item.insertBefore(nextElement, scoreCol);
+      }
     });
 
     // Add dummy blank column so the table stays centered
@@ -577,7 +670,7 @@ function newPlayerCLicked(e){
   let playerTb = document.getElementById('new-player-name');
   let playerName = playerTb.value;
   if (playerName) {
-    players.push(new Player(playerName, gameCategories, currentGame.maxDisplayCount, currentGame.getSinglePointValues()));
+    players.push(new Player(playerName, gameCategories, currentGame.startingScore, currentGame.enforcePositiveScores, currentGame.maxDisplayCount, currentGame.getSinglePointValues(), currentGame.getSingleScoreValues()));
 
     // add the user to the Scoreboard
     addPlayerToScoreboard(players[players.length - 1]);

@@ -3,10 +3,20 @@ class DartGame{
   #categories = null;
   #singlePointValues = null;
   #scoreValues = null;
+  #singleScoreValues = null;
+  doubleInOption = false;
+  doubleInEnabled = false;
+  doubleOutOption = false;
+  doubleOutEnabled = false;
+  singleColumnScores = false;
+  playToZero = false;
+  enforcePositiveScores = false;
+  startingScore = null;
   enforceOrder = true;
   enforceSingleRounds = false;
   categoryClosed =  null;
-  pointsWhenClosed = false;
+  pointsWhenClosedOption = false;
+  pointsWhenClosedEnabled = false;
   /* When the number is 0, display 0 */
   displayNoScore =  false;
   maxDisplayCount =  null;
@@ -15,10 +25,11 @@ class DartGame{
     return false;
   }
 
-  constructor(gameName, gameCategories, gameSinglePointValues, gameScoreValues){
+  constructor(gameName, gameCategories, gameSinglePointValues, singleScoreValues, gameScoreValues){
     this.#name = gameName;
     this.#categories = gameCategories;
     this.#singlePointValues = gameSinglePointValues;
+    this.#singleScoreValues = singleScoreValues;
     this.#scoreValues = gameScoreValues;
   }
 
@@ -40,5 +51,9 @@ class DartGame{
 
   getSinglePointValues(){
     return this.#singlePointValues;
+  }
+
+  getSingleScoreValues(){
+    return this.#singleScoreValues;
   }
 }

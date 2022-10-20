@@ -9,6 +9,7 @@
     <script src="./js/games/dart-game.js" defer></script>
     <script src="./js/games/cricket.js" defer></script>
     <script src="./js/games/shanghi.js" defer></script>
+    <script src="./js/games/x01.js" defer></script>
     <script src="./js/player.js" defer></script>
     <script src="./js/dartboard.js" defer></script>
     <script src="./js/scoreboard.js" defer></script>
@@ -20,16 +21,22 @@
     </div>
     </div>
     <div id="scoreboard-container" class="absolute-centered">
-      <div id="user-info-section">
-        <label for="new-player-name">New Player Name: </label>
-        <input id="new-player-name" type="text" />
-        <label id="enable-points-label" class="points-option"><input type="checkbox">Points</label>
-        <button id="start-game-btn" type="button" name="button">Start Game</button>
-      </div>
-      <div class="dropdown float-right">
-        <button id="select-game-btn" class="dropbtn">Select Game</button>
-        <div id="select-game-dropdown" class="dropdown-content">
-          <!-- dynamically added -->
+      <div class="banner">
+        <div id="user-info-section">
+          <label for="new-player-name">New Player Name: </label>
+          <input id="new-player-name" type="text" />
+          <button id="start-game-btn" type="button" name="button">Start Game</button>
+          <div id="user-info-section-options">
+            <label id="enable-points-label"><input id="enable-points-cb" type="checkbox">Points</label>
+            <label id="double-in-label"><input id="double-in-cb" type="checkbox">Double In</label>
+            <label id="double-out-label"><input id="double-out-cb" type="checkbox">Double Out</label>
+          </div>
+        </div>
+        <div class="dropdown float-right">
+          <button id="select-game-btn" class="dropbtn">Select Game</button>
+          <div id="select-game-dropdown" class="dropdown-content">
+            <!-- dynamically added -->
+          </div>
         </div>
       </div>
       <br>

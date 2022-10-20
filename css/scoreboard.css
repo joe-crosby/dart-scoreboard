@@ -55,6 +55,18 @@
   color: red;
 }
 
+.single-column-score{
+  vertical-align: text-top;
+}
+
+.single-column-score label:not(:last-child){
+  text-decoration: line-through;
+}
+
+.single-column-score label {
+  display: block;
+}
+
 .score {
   background: #e3edfb;
   font-weight: bold;
@@ -69,21 +81,24 @@
   margin-top: 10px !important;
 }
 
+.banner{
+  position:relative;
+}
+
 #user-info-section {
   display: none;
 }
 
 #user-info-section.show {
-  display: inline-block;
+  display: block;
 }
 
-.points-option {
-  text-align: right;
+#user-info-section-options label {
   display: none;
 }
 
 .show-inline {
-  display: inline-block;
+  display: inline-block !important;
 }
 
 button {
@@ -112,6 +127,9 @@ button {
 
 .dropdown {
   display: inline-block;
+  position: absolute;
+  top: 0;
+  right: 0;
 }
 
 .dropdown-content {
