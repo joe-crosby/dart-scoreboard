@@ -97,6 +97,10 @@
   display: none;
 }
 
+#start-game-btn {
+  margin-top: 5px;
+}
+
 .show-inline {
   display: inline-block !important;
 }

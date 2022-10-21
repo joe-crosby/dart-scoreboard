@@ -302,7 +302,7 @@ function checkGameOver(results, validScores){
   }
   // when the current user closes the last category, they win.
   // when points are enabled, the current user must also have the most points to win.
-  else if(nextCategoryIndex >= gameCategories.length && (!pointsAreEnabled() || (pointsAreEnabled() && hasMostPoints))){
+  else if(currentGame.categoryClosed && nextCategoryIndex >= gameCategories.length && (!pointsAreEnabled() || (pointsAreEnabled() && hasMostPoints))){
     gameOver = true;
   }
   else{
