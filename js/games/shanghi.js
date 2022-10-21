@@ -7,27 +7,21 @@ class Shanghi extends DartGame{
     this.enforceSingleRounds = true;
     this.displayNoScore =  true;
     this.includeTotals =  true;
-    this.instantWinner =  function(player, results, validScores){
-      let validScoresCollection = this.convertToCollection(validScores);
+    this.instantWinner =  function(player, validScores){
+      // to get a shangHi and automatically win, the user must have all 3 darts
+      // in the same category and include a single, a double, and a tripple.
 
-      let number = Object.keys(validScoresCollection)[0];
+      let scoreDict = this.convertToDictionary(validScores);
 
-      let sameNumber = results.reduce((r, item) => {
-        return number == parseInt(item.split('-')[1])
-      }, false);
+      // Only get the scores from the first category
+      let scores = scoreDict[Object.keys(scoreDict)[0]];
 
-      let categories = results.reduce((r, item) => {
-        let cat = item.split('-')[0];
-        if (!r.includes(cat)) {
-          r.push(cat);
+      // check for shangHi
+      if (scores){
+        let shangHi = scores.includes(1) && scores.includes(2) && scores.includes(3);
+        if (shangHi){
+          return `${player.name} got Shanghi!`;
         }
-        return r; /* important to keep separate */
-      }, []);
-
-      // In darts you only have 3 darts per turn. Since the categories are Tripple, Double, and Single,
-      // a user has a shanghi when the distinct category count is 3.
-      if (sameNumber && categories.length == 3){
-        return `${player.name} got Shanghi!`;
       }
     }
   }

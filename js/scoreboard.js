@@ -247,7 +247,7 @@ function dartboardCallback(results){
 
   handlePoints(currentPlayer.addScores(validScores, doubleInIsEnabled()));
 
-  let response = currentGame.instantWinner(currentPlayer, results, validScores);
+  let response = currentGame.instantWinner(currentPlayer, validScores);
   let gameOver = checkGameOver(results, validScores);
 
   updateScoreboard();

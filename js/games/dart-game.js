@@ -21,7 +21,7 @@ class DartGame{
   displayNoScore =  false;
   maxDisplayCount =  null;
   includeTotals =  false;
-  instantWinner =  function(player, results, validScores){
+  instantWinner =  function(player, validScores){
     return false;
   }
 
@@ -57,7 +57,7 @@ class DartGame{
     return this.#singleScoreValues;
   }
 
-  convertToCollection(arrOfDict){
+  convertToDictionary(arrOfDict){
     return arrOfDict.reduce((res, item) => {
       if (item.value.length > 0){
         res[item.key] = item.value;

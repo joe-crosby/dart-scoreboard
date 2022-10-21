@@ -61,20 +61,20 @@ class Dartboard{
     this.#borderArchX2 = this.#borderArchX1 - this.#archLength;
 
     this.#doubleArchX1 = this.#borderArchX1 - (this.#borderArchX1 * .022);
-    this.#doubleArchX2 = this.#borderArchX2 + (this.#borderArchX2 * .031);
+    this.#doubleArchX2 = this.#borderArchX2 + (this.#borderArchX2 * .030);
     this.#double_outer_y = this.#outer_y + 15;
 
-    this.#n1ArchX1 = this.#borderArchX1 - (this.#borderArchX1 * .0287);
-    this.#n1ArchX2 = this.#borderArchX2 + (this.#borderArchX2 * .040);
-    this.#n1_outer_y = this.#outer_y + 20;
+    this.#n1ArchX1 = this.#borderArchX1 - (this.#borderArchX1 * .031);
+    this.#n1ArchX2 = this.#borderArchX2 + (this.#borderArchX2 * .043);
+    this.#n1_outer_y = this.#outer_y + 21.5;
 
     this.#trippleArchX1 = this.#borderArchX1 - (this.#borderArchX1 * .070);
     this.#trippleArchX2 = this.#borderArchX2 + (this.#borderArchX2 * .095);
     this.#tripple_outer_y = this.#outer_y + 50;
 
-    this.#n2ArchX1 = this.#borderArchX1 - (this.#borderArchX1 * .077);
-    this.#n2ArchX2 = this.#borderArchX2 + (this.#borderArchX2 * .105);
-    this.#n2_outer_y = this.#outer_y + 55;
+    this.#n2ArchX1 = this.#borderArchX1 - (this.#borderArchX1 * .079);
+    this.#n2ArchX2 = this.#borderArchX2 + (this.#borderArchX2 * .108);
+    this.#n2_outer_y = this.#outer_y + 56.5;
 
     this.#textX = this.#borderArchX1 - 21;
     this.#textY = this.#outer_y + 8;
@@ -167,11 +167,11 @@ class Dartboard{
     }
 
     // Bullseye
-    let bullseye = this.#createCircle('S-BULL', 7, 'green');
+    let bullseye = this.#createCircle('S-BULL', 8.8, 'green');
     this.#addClickEvent(bullseye);
     board.appendChild(bullseye);
 
-    let doubleBullseye = this.#createCircle('D-BULL', 3, 'red');
+    let doubleBullseye = this.#createCircle('D-BULL', 3.8, 'red');
     this.#addClickEvent(doubleBullseye);
     board.appendChild(doubleBullseye);
 
