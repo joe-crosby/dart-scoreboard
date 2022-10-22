@@ -21,7 +21,7 @@
   border-collapse: collapse;
   border-spacing: 0px;
   background: White;
-  height: 95%;
+  height: 94%;
 }
 
 #scoreboard-container > table > tr, th, td {
@@ -99,6 +99,7 @@
 
 #start-game-btn {
   margin-top: 5px;
+  margin-bottom: 5px;
 }
 
 .show-inline {
@@ -131,7 +132,8 @@ button {
 
 .dropdown {
   display: inline-block;
-  position: absolute;
+  position: relative;
+  /* position: absolute; */
   top: 0;
   right: 0;
 }
@@ -168,7 +170,7 @@ button {
 
 @media screen and (max-height: 430px) {
   #scoreboard-container > table {
-    height: 90%;
+    height: 89%;
   }
 
   #scoreboard-container > table > tr {
@@ -178,15 +180,7 @@ button {
 
 @media screen and (orientation: portrait) {
   /* This will keep the absolute elements centered */
-  /* html, body {
+  html, body {
     position: relative;
-  } */
-
-  .dropdown {
-    position: relative;
-  }
-
-  #start-game-btn {
-    margin-bottom: 5px;
   }
 }
