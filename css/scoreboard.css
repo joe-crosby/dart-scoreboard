@@ -187,4 +187,8 @@ button {
   #scoreboard-header > th {
     word-break: break-word;
   }
+
+  #scoreboard-container > table > tr > td > svg {
+    width: 100%;
+  }
 }
