@@ -33,7 +33,7 @@
   position: relative;
 }
 
-#scoreboad-header > th {
+#scoreboard-header > th {
   width: 5em;
 }
 
@@ -182,5 +182,9 @@ button {
   /* This will keep the absolute elements centered */
   html, body {
     position: relative;
+  }
+
+  #scoreboard-header > th {
+    word-break: break-word;
   }
 }

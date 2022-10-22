@@ -483,7 +483,7 @@ function drawScoreboard(){
 
       // header
       if (i == 0){
-        r.setAttribute('id', 'scoreboad-header');
+        r.setAttribute('id', 'scoreboard-header');
         r.appendChild(getScoreHeader(item, i));
       }
       else{
@@ -561,7 +561,7 @@ function addPlayerToScoreboard(player){
   if (gameInfo){
     if (currentGame.singleColumnScores)
     {
-      document.querySelector('#scoreboad-header').appendChild(getHeader(player.name, `c${player.id}-${gameInfo[0]}`));
+      document.querySelector('#scoreboard-header').appendChild(getHeader(player.name, `c${player.id}-${gameInfo[0]}`));
       let col = getColumn(null, `c${player.id}-${gameCategories[0]}`, true);
       col.setAttribute('rowspan', `${gameCategories.length}`)
       col.classList.add('single-column-score');
@@ -573,7 +573,7 @@ function addPlayerToScoreboard(player){
         let r = null;
 
         if (i == 0){
-          r = document.querySelector('#scoreboad-header');
+          r = document.querySelector('#scoreboard-header');
         }
         else{
           r = document.querySelector(`#r${item}`);
@@ -625,7 +625,7 @@ function moveScoreColumn(){
         let r = null;
 
         if (i == 0){
-          r = document.querySelector('#scoreboad-header');
+          r = document.querySelector('#scoreboard-header');
         }
         else{
           r = document.querySelector(`#r${item}`);
