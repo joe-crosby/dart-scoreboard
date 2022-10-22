@@ -178,7 +178,15 @@ button {
 
 @media screen and (orientation: portrait) {
   /* This will keep the absolute elements centered */
-  html, body {
+  /* html, body {
     position: relative;
+  } */
+
+  .dropdown {
+    position: relative;
+  }
+
+  #start-game-btn {
+    margin-bottom: 5px;
   }
 }
