@@ -1,10 +1,11 @@
 "use strict";
 
 const AVAILABLEGAMES = [
-  'Cricket',
-  'Shanghi',
   '3-01',
   '5-01',
+  'AroundTheWorld',
+  'Cricket',
+  'Shanghi',
 ];
 
 let LOADEDGAMES = [];
@@ -78,6 +79,86 @@ function endGame(message){
     let winners = getWinners();
     if (winners.length > 1){
       alert(`We have a tie!`);
+      // TODO:: Shanghi - Find which winner has the most tripples
+      if (currentGame.getName() == 'Shanghi'){
+        let winnerInfo = {};
+        let maxTripples = 0;
+
+        winners.forEach((w, i) => {
+          let scores = w.getScoresCollection();
+          for (let key in scores){
+            let tripples = scores[key].filter(x => x == 3).reduce((res, num) => res += num, 0);
+            if (tripples > 0){
+              if (!winnerInfo[w.Id]){
+                winnerInfo[w.id] = 0;
+              }
+
+              winnerInfo[w.id] += tripples;
+            }
+
+            if (tripples > maxTripples){
+              maxTripples = tripples;
+            }
+          }
+        });
+
+        let finalWinners = Object.keys(winnerInfo)
+          .filter(key => winnerInfo[key] == maxTripples)
+          .reduce((obj, key) => {
+            players.filter(x => x.id == key).forEach((item, i) => {
+              obj.push(item);
+            });
+            return obj;
+          }, []);
+
+        if (finalWinners.length == 0 || finalWinners.length > 1){
+          let noFinalWinners = false;
+          let names = null;
+          if (finalWinners.length == 0){
+            noFinalWinners = true;
+            finalWinners = winners;
+          }
+
+          finalWinners.forEach((p, i) => {
+            if (names == null){
+              names = p.name;
+            }
+            else{
+              names += ` and ${p.name}`;
+            }
+          });
+
+          if (!noFinalWinners)
+            alert(`${names} have shot the same number of tripples. We still have a tie!`);
+          alert(`${names} will have another chance. The player with the most points will win.`);
+          // TODO :: Shoot the next number until someone wins.
+
+          // reset the game gameCategories and or reinitialize the games
+          gameInfo = currentGame.getNameWithTieCategory();
+          gameCategories = gameInfo.slice(1);
+
+          // restart a new game with a single number for a tie breaker
+          // clear losers from the collection and redraw the board
+          drawScoreboard();
+
+          // Create new players so their categories are current for the tie breaker, and add them to the board.
+          finalWinners.forEach((p, i) => {
+            addPlayerToScoreboard(addNewPlayer(p.name, gameCategories));
+          });
+
+          gameOver = false;
+          startNewGame(null);
+
+          // Let this existing code determine who wins!
+        }
+        else {
+          let finalWinner = finalWinners[0];
+          alert(`${finalWinner.name} threw the most tripples, so ${finalWinner.name} wins!`);
+        }
+      }
+
+      // TODO:: Other games - reset the categories to the tie categories and
+      // make sure there is only 1 more turn? Or will this code handle the winner already?
     }
     else{
       alert(`${winners[0].name} wins!`);
@@ -104,20 +185,6 @@ function gameSelectionChanged(e){
 
   // set the currentGame
   switch(e.target.innerHTML){
-    case 'Cricket':
-      currentGame = LOADEDGAMES.find(x => x.getName() == e.target.innerHTML);
-      if (!currentGame){
-        currentGame = new Cricket();
-        LOADEDGAMES.push(currentGame);
-      }
-      break;
-    case 'Shanghi':
-      currentGame = LOADEDGAMES.find(x => x.getName() == e.target.innerHTML);
-      if (!currentGame){
-        currentGame = new Shanghi();
-        LOADEDGAMES.push(currentGame);
-      }
-      break;
     case '3-01':
       currentGame = LOADEDGAMES.find(x => x.getName() == '3-01');
       if (!currentGame){
@@ -129,6 +196,27 @@ function gameSelectionChanged(e){
       currentGame = LOADEDGAMES.find(x => x.getName() == '5-01');
       if (!currentGame){
         currentGame = new X01(5);
+        LOADEDGAMES.push(currentGame);
+      }
+      break;
+    case 'AroundTheWorld':
+      currentGame = LOADEDGAMES.find(x => x.getName() == 'AroundTheWorld');
+      if (!currentGame){
+        currentGame = new AroundTheWorld();
+        LOADEDGAMES.push(currentGame);
+      }
+      break;
+    case 'Cricket':
+      currentGame = LOADEDGAMES.find(x => x.getName() == e.target.innerHTML);
+      if (!currentGame){
+        currentGame = new Cricket();
+        LOADEDGAMES.push(currentGame);
+      }
+      break;
+    case 'Shanghi':
+      currentGame = LOADEDGAMES.find(x => x.getName() == e.target.innerHTML);
+      if (!currentGame){
+        currentGame = new Shanghi();
         LOADEDGAMES.push(currentGame);
       }
       break;
@@ -674,13 +762,19 @@ function newPlayerCLicked(e){
   let playerTb = document.getElementById('new-player-name');
   let playerName = playerTb.value;
   if (playerName) {
-    players.push(new Player(playerName, gameCategories, currentGame.startingScore, currentGame.enforcePositiveScores, currentGame.maxDisplayCount, currentGame.getSinglePointValues(), currentGame.getSingleScoreValues()));
+    addNewPlayer(playerName, gameCategories);
 
     // add the user to the Scoreboard
     addPlayerToScoreboard(players[players.length - 1]);
 
     playerTb.value = null;
   }
+}
+
+function addNewPlayer(name, categories){
+  let newPlayer = new Player(name, categories, currentGame.startingScore, currentGame.enforcePositiveScores, currentGame.maxDisplayCount, currentGame.getSinglePointValues(), currentGame.getSingleScoreValues());
+  players.push(newPlayer);
+  return newPlayer;
 }
 
 function createNewScoresDictionary(){
@@ -716,7 +810,9 @@ function showDartBoardTouchStart(e){
 }
 
 function startNewGame(e){
-  e.preventDefault();
+  if (e){
+    e.preventDefault();
+  }
 
   if (players.length < 1){
     return;

@@ -33,6 +33,15 @@ class DartGame{
     this.#scoreValues = gameScoreValues;
   }
 
+  getNameWithTieCategory(){
+    let lastCat = this.#categories.slice(-1);
+    if (isNaN(lastCat) && lastCat == 'BULL'){
+      return [this.#name, lastCat];
+    } else {
+      return [this.#name, parseInt(lastCat) + 1];
+    }
+  }
+
   getName(){
     return this.#name;
   }

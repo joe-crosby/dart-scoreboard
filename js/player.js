@@ -83,6 +83,10 @@ class Player{
     return this.#totalScore;
   }
 
+  getScoresCollection(){
+    return this.#scores;
+  }
+
   getScores(category){
     return this.#scores[category];
   }
