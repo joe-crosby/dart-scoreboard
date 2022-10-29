@@ -1,0 +1,82 @@
+.message-board {
+  width: 100vw;
+  height: 100vh;
+  background: #c2d5f1;
+  position: absolute;
+  margin: auto;
+  left: 0;
+  right: 0;
+  text-align: center;
+}
+
+.message-board button {
+  min-width: 80px;
+  border-radius: 12px;
+  margin-top: 10px;
+}
+
+.message-board, .message-container, .message {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.message-container {
+  width: 60%;
+  height: 80%;
+  background: #168bf3;
+  border-radius: 70px;
+  background-image: url(../images/frame-background.png) !important;
+  background-size: contain !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+}
+
+.message {
+  color: White;
+}
+
+.message-ok, .message-yes, .message-no, .message-cancel {
+  display: none;
+}
+
+.pull-forward {
+  z-index: 99;
+}
+
+@media screen and (orientation: portrait){
+  .message-container {
+    width: 80%;
+    height: 40%;
+  }
+}
+
+@media (min-width: 300px) {
+  .message {
+    font-size: 1em;
+  }
+}
+
+@media (min-width: 365px) {
+  .message {
+    font-size: 1.5em;
+  }
+}
+
+@media (min-width: 750px) {
+  .message {
+    font-size: 2em;
+  }
+}
+
+@media (min-width: 850px) {
+  .message {
+    font-size: 2.5em;
+  }
+}
+
+@media (min-width: 900px) {
+  .message {
+    font-size: 3em;
+  }
+}

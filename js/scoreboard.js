@@ -5,7 +5,7 @@ const AVAILABLEGAMES = [
   '5-01',
   'AroundTheWorld',
   'Cricket',
-  'Shanghi',
+  'Shanghai',
 ];
 
 let LOADEDGAMES = [];
@@ -58,6 +58,10 @@ AVAILABLEGAMES.forEach((item, i) => {
   gdc.appendChild(l)
 });
 
+function displayMessage(message){
+  new MessageBoard(message);
+}
+
 function initialize(){
   setCurrentCategory(null);
   // clear the players
@@ -67,20 +71,22 @@ function initialize(){
   drawScoreboard();
 }
 
-function endGame(message){
+function endGame(messages){
   // End the game
   gameOver = true;
   setCurrentCategory(null);
 
-  if (message){
-    alert(message);
+  if (messages){
+    for (let i = messages.length -1; i >= 0; i--){
+      displayMessage(messages[i]);
+    }
   }
   else{
     let winners = getWinners();
     if (winners.length > 1){
-      alert(`We have a tie!`);
-      // TODO:: Shanghi - Find which winner has the most tripples
-      if (currentGame.getName() == 'Shanghi'){
+      displayMessage(`We have a tie!`);
+      // TODO:: Shanghai - Find which winner has the most tripples
+      if (currentGame.getName() == 'Shanghai'){
         let winnerInfo = {};
         let maxTripples = 0;
 
@@ -129,8 +135,8 @@ function endGame(message){
           });
 
           if (!noFinalWinners)
-            alert(`${names} have shot the same number of tripples. We still have a tie!`);
-          alert(`${names} will have another chance. The player with the most points will win.`);
+            displayMessage(`${names} have shot the same number of tripples. We still have a tie!`);
+          displayMessage(`${names} will have another chance. The player with the most points will win.`);
           // TODO :: Shoot the next number until someone wins.
 
           // reset the game gameCategories and or reinitialize the games
@@ -153,7 +159,7 @@ function endGame(message){
         }
         else {
           let finalWinner = finalWinners[0];
-          alert(`${finalWinner.name} threw the most tripples, so ${finalWinner.name} wins!`);
+          displayMessage(`${finalWinner.name} threw the most tripples, so ${finalWinner.name} wins!`);
         }
       }
 
@@ -161,7 +167,7 @@ function endGame(message){
       // make sure there is only 1 more turn? Or will this code handle the winner already?
     }
     else{
-      alert(`${winners[0].name} wins!`);
+      displayMessage(`${winners[0].name} wins!`);
     }
   }
 }
@@ -213,10 +219,10 @@ function gameSelectionChanged(e){
         LOADEDGAMES.push(currentGame);
       }
       break;
-    case 'Shanghi':
+    case 'Shanghai':
       currentGame = LOADEDGAMES.find(x => x.getName() == e.target.innerHTML);
       if (!currentGame){
-        currentGame = new Shanghi();
+        currentGame = new Shanghai();
         LOADEDGAMES.push(currentGame);
       }
       break;
@@ -275,12 +281,28 @@ function getSum(collection){
 
 // populate the svg dart board scoreboard
 let dartboard = null;
-function dartboardCallback(results){
-  if (!confirm(`You hit:   ${results.join(',  ')}`)){
-    dartboard.reset();
-    return;
-  }
+let dartboardCallbackResults = null;
 
+function dartboardCallback(results){
+  dartboardCallbackResults = results;
+  new MessageBoard(`You hit:   ${results.join(',  ')}`, true, false, dartboardMessageCallback);
+}
+
+function dartboardMessageCallback(response){
+  if (response == 'yes'){
+    dartboardMessageCallback_Yes(dartboardCallbackResults);
+  }
+  else{
+     dartboardMessageCallback_No();
+   }
+}
+
+function dartboardMessageCallback_No(results){
+  dartboardCallbackResults = null;
+  dartboard.reset();
+}
+
+function dartboardMessageCallback_Yes(results){
   dartboard.hide();
 
   let maxIndex =  gameCategories.indexOf(currentPlayer.getLastClosedCategory()) + 1;
@@ -341,7 +363,7 @@ function dartboardCallback(results){
   updateScoreboard();
 
   if (response){
-    endGame(response);
+    endGame([response, `${currentPlayer.name} wins!`]);
   }
   else if (gameOver){
     endGame();
