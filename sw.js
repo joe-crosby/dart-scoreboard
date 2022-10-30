@@ -1,5 +1,5 @@
-// (A) FILES TO CACHE
 const CACHE_NAME = "DartScoreboardOffline";
+
 var urlsToCache = [
     'https://joe-crosby.github.io/dart-scoreboard/',
     'https://joe-crosby.github.io/dart-scoreboard/images/dartboard.png',
@@ -18,7 +18,7 @@ var urlsToCache = [
     'https://joe-crosby.github.io/dart-scoreboard/js/scoreboard.js'
 ];
 
-// (B) CREATE/INSTALL CACHE
+// Create the cache on install
 self.addEventListener('install', function(event) {
     event.waitUntil(
       caches.open(CACHE_NAME)
@@ -30,14 +30,6 @@ self.addEventListener('install', function(event) {
         })
     );
 });
-
-// // (C) LOAD FROM CACHE, FALLBACK TO NETWORK IF NOT FOUND
-// self.addEventListener("fetch", (event) => {
-//   event.respondWith(
-//     caches.match(evt.request)
-//     .then((res) => { return res || fetch(event.request); })
-//   );
-// });
 
 // Network first, fall back to cache. This will keep the cache up to date.
 self.addEventListener('fetch', (event) => {
