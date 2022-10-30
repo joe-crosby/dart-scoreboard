@@ -31,10 +31,31 @@ self.addEventListener('install', function(event) {
     );
 });
 
-// (C) LOAD FROM CACHE, FALLBACK TO NETWORK IF NOT FOUND
-self.addEventListener("fetch", (evt) => {
-  evt.respondWith(
-    caches.match(evt.request)
-    .then((res) => { return res || fetch(evt.request); })
-  );
+// // (C) LOAD FROM CACHE, FALLBACK TO NETWORK IF NOT FOUND
+// self.addEventListener("fetch", (event) => {
+//   event.respondWith(
+//     caches.match(evt.request)
+//     .then((res) => { return res || fetch(event.request); })
+//   );
+// });
+
+// Network first, fall back to cache. This will keep the cache up to date.
+self.addEventListener('fetch', (event) => {
+  // Check if this is a navigation request
+  if (event.request.mode === 'navigate') {
+    // Open the cache
+    event.respondWith(caches.open(CACHE_NAME).then((cache) => {
+      // Go to the network first
+      return fetch(event.request.url).then((fetchedResponse) => {
+        cache.put(event.request, fetchedResponse.clone());
+
+        return fetchedResponse;
+      }).catch(() => {
+        // If the network is unavailable, get
+        return cache.match(event.request.url);
+      });
+    }));
+  } else {
+    return;
+  }
 });
