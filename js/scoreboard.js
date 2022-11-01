@@ -3,7 +3,7 @@
 const AVAILABLEGAMES = [
   '3-01',
   '5-01',
-  'AroundTheWorld',
+  'Around The World',
   'Cricket',
   'Shanghai',
 ];
@@ -192,21 +192,21 @@ function gameSelectionChanged(e){
   // set the currentGame
   switch(e.target.innerHTML){
     case '3-01':
-      currentGame = LOADEDGAMES.find(x => x.getName() == '3-01');
+      currentGame = LOADEDGAMES.find(x => x.getName() == e.target.innerHTML);
       if (!currentGame){
         currentGame = new X01(3);
         LOADEDGAMES.push(currentGame);
       }
       break;
     case '5-01':
-      currentGame = LOADEDGAMES.find(x => x.getName() == '5-01');
+      currentGame = LOADEDGAMES.find(x => x.getName() == e.target.innerHTML);
       if (!currentGame){
         currentGame = new X01(5);
         LOADEDGAMES.push(currentGame);
       }
       break;
-    case 'AroundTheWorld':
-      currentGame = LOADEDGAMES.find(x => x.getName() == 'AroundTheWorld');
+    case 'Around The World':
+      currentGame = LOADEDGAMES.find(x => x.getName() == e.target.innerHTML);
       if (!currentGame){
         currentGame = new AroundTheWorld();
         LOADEDGAMES.push(currentGame);
@@ -285,7 +285,7 @@ let dartboardCallbackResults = null;
 
 function dartboardCallback(results){
   dartboardCallbackResults = results;
-  new MessageBoard(`You hit:   ${results.join(',  ')}`, true, false, dartboardMessageCallback);
+  new MessageBoard(`You hit:\n   ${results.join('\n')}`, true, false, dartboardMessageCallback);
 }
 
 function dartboardMessageCallback(response){

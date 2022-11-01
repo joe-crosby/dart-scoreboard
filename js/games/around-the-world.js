@@ -12,7 +12,7 @@ class AroundTheWorld extends DartGame{
   ];
 
   constructor(){
-    super('AroundTheWorld', AroundTheWorld.#categories, null, null, AroundTheWorld.#scoreValues);
+    super('Around The World', AroundTheWorld.#categories, null, null, AroundTheWorld.#scoreValues);
 
     this.categoryClosed =  1;
     this.maxDisplayCount = 1;

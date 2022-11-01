@@ -1,9 +1,9 @@
 class MessageBoard{
-  #id;
+    #id;
     #displayMessageResponse = null;
     #board = `<div id="message-board" class="message-board">
+      <div class="message-outer-container">
       <div class="message-container">
-      <div>
         <div id="message" class="message"></div>
         <button id="message-yes" class="message-yes">Yes</button>
         <button id="message-no" class="message-no">No</button>
