@@ -1,6 +1,6 @@
 const version = 1;
 const appName = "DartScoreboardOffline";
-const CACHE_NAME = `appNameV${version}`;
+const CACHE_NAME = `${appName}V${version}`;
 
 var cacheItemUrls = [
     './',
