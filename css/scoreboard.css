@@ -104,6 +104,9 @@
 #start-game-btn {
   margin-top: 5px;
   margin-bottom: 5px;
+  background-color: #9f53d1;
+  color: white;
+  font-size: 16px;
 }
 
 .show-inline {
@@ -128,7 +131,7 @@ button {
   border: none;
 }
 
-.dropbtn, .dropdown-content {
+.dropbtn, .dropdown-content, #start-game-btn {
   width: 150px;
 }
 
