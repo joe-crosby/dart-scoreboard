@@ -1,5 +1,6 @@
 const version = 1;
-const CACHE_NAME = `DartScoreboardOffline${version}`;
+const appName = "DartScoreboardOffline";
+const CACHE_NAME = `appNameV${version}`;
 
 var cacheItemUrls = [
     './',
@@ -38,7 +39,7 @@ const deleteCache = async (key) => {
 
 const deleteOldCaches = async () => {
   const keyList = await caches.keys();
-  const cachesToDelete = keyList.filter((key) => key != CACHE_NAME);
+  const cachesToDelete = keyList.filter((key) => key.startsWith(appName) && key != CACHE_NAME);
   await Promise.all(cachesToDelete.map(deleteCache));
 }
 
