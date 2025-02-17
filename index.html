@@ -3,7 +3,7 @@
   <head>
     <!-- Register service worker -->
     <script>
-        navigator.serviceWorker.register("/sw.js")
+        navigator.serviceWorker.register("./sw.js")
         .then((reg) => { /* OK */ })
         .catch((err) => { console.error(err); });
     </script>
